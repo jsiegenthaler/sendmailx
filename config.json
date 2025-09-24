@@ -1,0 +1,11 @@
+{
+	"totp": {
+		"formatString": "yyyyMMmss",
+		"pin": "d1245",
+		"validityPeriod": 5
+	},
+	"authorisedRecipients": [
+		"example@anywhere.com",
+		"another.example@gmailx.com"
+	]
+}
