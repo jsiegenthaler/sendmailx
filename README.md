@@ -13,7 +13,7 @@ The Apple HomeKit hub has problems executing "with SSH", and I needed a workarou
 
 I have sendmail installed and configured on my raspberry pi, and I created this sendmail extension to send an email from a HomeKit automation.
 
-I had a specific use case where I could only use GET requests, so I made a simple API to translate from GET to PUT. It also supports the standard GET command so you can use sendmailx for both GET and PUT.
+I had a specific use case where I could only use GET requests, so I made a simple API to send an email from a url sent with http GET method.
 
 If you like this tool, consider buying me a coffee!<br>
 <a target="blank" href="https://ko-fi.com/jsiegenthaler"><img src="https://img.shields.io/badge/Ko--Fi-Buy%20me%20a%20coffee-29abe0.svg?logo=ko-fi"/></a>
