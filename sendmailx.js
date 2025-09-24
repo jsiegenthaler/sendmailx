@@ -21,6 +21,9 @@ const server = http.createServer(app);
 // for executing the sendmail command
 const { exec } = require("child_process");
 
+
+// +++++ startup code +++++
+
 // get startup arguments
 var options = stdio.getopt({
   auth: {
@@ -40,11 +43,11 @@ var options = stdio.getopt({
 });
 //console.log('%s options', packagejson.name, options);
 
-// show version and arguments
+// show version and arguments during startup
 console.log("%s v%s", packagejson.name, packagejson.version);
 console.log("auth:", options.auth);
 
-// main code block
+
 // wrap the config parser in an error handler
 try {
   // read the config file, ensure something exists
@@ -82,17 +85,24 @@ try {
   if (generateEasyPins().includes(totp.pin)) {
     throw errPrefix + "PIN must be more complex";
   }
+
+  //+++++ end of startup code +++++
 } catch (err) {
   // some error occured, handle it nicely
   console.log("error:", err.message || err);
   return;
 }
 
+
+
 // add an error handler event to the server
 server.on("error", function (err) {
   // some error occured, show it
   console.log("error:", err.code, err.syscall, err.address, err.port);
 });
+
+
+
 
 // main server got, runs on each http request
 // handle
