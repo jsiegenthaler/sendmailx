@@ -77,12 +77,16 @@ try {
   if (!(totp.pin.toString().length >= 4 && totp.pin.toString().length <= 6)) {
     throw errPrefix + "PIN must be between 4 and 6 characters long";
   }
-  // PIN must be numeric and an integer
-  if (isNaN(Number(totp.pin))) {
-    throw errPrefix + "PIN must be a 4 to 6 digit number";
+  // PIN must not start with 0 (otherwise the number checks fail, and the multiplication effect is too small)
+  if ((totp.pin.toString().startsWith("0"))) {
+    throw errPrefix + "PIN must not begin with 0";
   }
-  // PIN must not be too simple
-  if (generateEasyPins().includes(totp.pin)) {
+  // PIN must be numeric and an integer
+  if (isNaN(Number(totp.pin)) ) {
+    throw errPrefix + "PIN must be a 4 to 6 digit whole number";
+  }
+  // PIN must not be too simple and must not be disivible by 10
+  if (generateEasyPins().includes(totp.pin) || ((totp.pin % 10) == 0)) {
     throw errPrefix + "PIN must be more complex";
   }
 
@@ -107,8 +111,9 @@ server.on("error", function (err) {
 // main server got, runs on each http request
 // handle
 // ?subject=<subject>&body=<bodytext>
-// GET: http://localhost:3002?subject=Test%20mail&body=Hey%20how%20cool
-// translates a received GET command into a sendmail
+// examples:
+// GET no auth: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=jbsiegenthaler@gmail.com
+// GET totp token: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=jbsiegenthaler@gmail.com
 // GET: http://192.168.0.100?subject=Test%20mail&body=Hey%20how%20cool
 app.use("/", (req, res) => {
   const reqUrl = req.url;
@@ -146,19 +151,20 @@ app.use("/", (req, res) => {
     const params = urlParamsToJson(req.url);
 
     // debug
+    /*
     console.log("params:", params);
     console.log("token:", params.token);
     console.log("mailto:", params.mailto);
     console.log("subject:", params.subject);
     console.log("body:", params.body);
     console.log("sig:", params.sig);
+    */
 
     var errPrefix = "error: ";
 
     // raise error if token invalid (unauthorised)
-    errPrefix = "authorisation error: ";
     if (!isTokenValid(options.auth, params.token, config.totp)) {
-      throw errPrefix + "unauthorised";
+      throw "unauthorised";
     }
 
     // parse parameters
@@ -216,12 +222,14 @@ app.use("/", (req, res) => {
   } catch (err) {
     // some error occured, handle it nicely
     res.json({ error: err });
-    console.log('url: "' + reqUrl + '"');
+    //console.log('url: "' + reqUrl + '"');
     console.log("error:", err);
   }
 });
 
-// create json from url parameter name=value pairs
+
+
+// ++++ create json from url parameter name=value pairs ++++
 function urlParamsToJson(url) {
   const queryString = url.split("?")[1];
   const jsonObj = queryString.split("&").reduce((acc, param) => {
@@ -232,12 +240,16 @@ function urlParamsToJson(url) {
   return jsonObj;
 }
 
-// decode a totp token and check its validity
+
+
+// ++++ decode a totp token and check its validity ++++
 // return json from url parameter name=value pairs
 function isTokenValid(auth, token, totp) {
+  /*
   console.log("auth", auth);
   console.log("token", token);
   console.log("totp", totp);
+  */
 
   // totp:    totp token in header (default)
   // totpurl: totp token in url
@@ -257,7 +269,7 @@ function isTokenValid(auth, token, totp) {
 
   // decode the token
   var decodedtoken = atob(token) / totp.pin;
-  console.log("decodedtoken", decodedtoken);
+  //console.log("decodedtoken", decodedtoken);
 
   // formatted date string acording to the totp.formatString
   // https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md
@@ -271,9 +283,11 @@ function isTokenValid(auth, token, totp) {
     totp.formatString,
     new Date()
   ); // create new date using token format
+  /*
   console.log("curdate", curdate.toLocaleString()); // current date and time
   console.log("curdatetokenformatted", curdatetokenformatted); // current date in token format
   console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
+  */
 
   // get date from token using totp.formatString
   // any missing date components fallback to smallest valid values
@@ -283,8 +297,8 @@ function isTokenValid(auth, token, totp) {
     new Date()
   );
   var maxtokendate = new Date(tokendate.getTime() + totp.validityPeriod * 1000); // validityPeriod is in seconds, need milliseconds
-  console.log("tokendate", tokendate.toLocaleString());
-  console.log("maxtokendate", maxtokendate.toLocaleString());
+  //console.log("tokendate", tokendate.toLocaleString());
+  //console.log("maxtokendate", maxtokendate.toLocaleString());
 
   // test if curdatetoken is between tokendate and maxtokendate
   if (
@@ -299,12 +313,17 @@ function isTokenValid(auth, token, totp) {
   }
 }
 
-// the api listener
+
+
+// ++++ the api listener ++++
 server.listen(options.port, () => {
   console.log(`listening on port ${options.port}`);
 });
 
-// a generator of easy-to-guess pins
+
+
+
+// ++++ a generator of easy-to-guess pins ++++
 function generateEasyPins(url) {
   var easyPins = [];
   // add repeating pins, 4, 5 or 6 char long
