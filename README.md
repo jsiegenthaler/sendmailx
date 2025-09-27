@@ -236,15 +236,16 @@ Example:
 Notes
 * The symbols (hh, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
 Useful symbols:
-** ss seconds, 00 to 59 (or just s = 0 to 59)
-** mm minutes, 00 to 59 (or just m = 0 to 59)
-** HH hour, 00 to 23 (or just h = 0 to 12)
-** dd day, 01 to 31 (or just d = 1 to 31)
-** ee weekday, 01 to 07 (or just e = 1 to 7)
-** ww week, 01 to 52 (or just w = 1 to 52)
-** MM month, 01 to 12 (or just M = 1 to 12)
-** QQ quarter, 01 to 04 (or just Q: 1 to 4)
-** yy year, last 2 digits of year (or yyyy = 4 digit year)
+
+* ss seconds, 00 to 59 (or just s = 0 to 59)
+* mm minutes, 00 to 59 (or just m = 0 to 59)
+* HH hour, 00 to 23 (or just h = 0 to 12)
+* dd day, 01 to 31 (or just d = 1 to 31)
+* ee weekday, 01 to 07 (or just e = 1 to 7)
+* ww week, 01 to 52 (or just w = 1 to 52)
+* MM month, 01 to 12 (or just M = 1 to 12)
+* QQ quarter, 01 to 04 (or just Q: 1 to 4)
+* yy year, last 2 digits of year (or yyyy = 4 digit year)
 
 
 * The more complex the seedFormatString, the more secure the TOTP
