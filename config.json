@@ -1,7 +1,7 @@
 {
 	"totp": {
-		"formatString": "yyyyMMmss",
-		"pin": "5099",
+		"formatString": "mmhhMMssyydd",
+		"pin": "7385",
 		"validityPeriod": 5
 	},
 	"authorisedRecipients": [
