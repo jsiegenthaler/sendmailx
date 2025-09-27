@@ -9,7 +9,7 @@
 A simple API to control the sendmail command with http GET requests, useful for integration with Apple HomeKit
 
 # Background
-The Apple HomeKit hub has problems executing the automation step "Run Script over SSH", and I needed a workaround to send an email via my raspberry pi.
+The Apple HomeKit hub has problems executing the automation step "Run Script over SSH", and I needed a workaround to send an email from any HomeKit accessory via my raspberry pi.
 
 I have sendmail installed and configured on my raspberry pi, and I created this sendmail extension to easily send a simple email from a http GET command, which can be called from any HomeKit automation.
 
@@ -20,6 +20,9 @@ If you like this tool, consider buying me a coffee!<br>
 
 ## Send an email when the doorbell rings
 Send an email when the doorbell rings. I have a Shelly1 as my doorbell. The doorbell connects to the Shelly1 SW input using a relay on the doorbell buzzer. Thus when the doorbell button is pressed, the Shelly1 sees an input, and calls a url, which sends an email to me.
+
+## Let people know you have arrived home
+Send an email when your home detects you have arrived, using the native Apple HomeKit presence detection.
 
 ## Let people know you have left home
 Send an email when your home notices you have left, using the native Apple HomeKit presence detection.
@@ -120,10 +123,10 @@ sendmailx listens on your local network and processes any GET command it receive
 
 
 ## Setting a TOTP (Time-limited One Time Passcode)
-The TOTP is generated using the current datetime and a secret PIN code.
+The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in validityPeriod (seconds) in the config.json.
 
-## seedFormatString (in config.json)
-The seedFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used to in the TOTP code generation.
+## seedFormatString
+The seedFormatString (in config.json) is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used to in the TOTP code generation.
 
 Example:
 For a date ot 27.09.2025 13:29:30, a seedFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
@@ -132,8 +135,14 @@ To make identification of the seed harder, it is recommended to set the seedForm
 
 Example:
 * Normal datetime sequence: yyyyMMddhhmmss = 20250927132930
-* Alternative datetime sequence: ssddyyyymmMMhh = 30272025290913 
+* Alternative datetime sequence: ssddqqyymmMMhh = 30270325290913 
 * Alternative datetime sequence: mmhhMMssyydd = 291309302527
+
+Notes
+* The symbols (hh, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+* The more complex the seedFormatString, the more secure the TOTP
+* Do not use any date or time symbol in the seedFormatString more than once (both s and ss is defined as being used once), otherwise the recognition of the TOTP passcode may not work.
+* You must include at least one s and one m symbol in the seedFormatString
 
 The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in cofnig.json, in seconds)
 
