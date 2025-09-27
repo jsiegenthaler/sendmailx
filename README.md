@@ -252,9 +252,9 @@ Useful symbols:
 
 Tip: avoid use of h (1-12), as 12-hour time is ambiguous when no a.m. or p.m. indication exists.
 
-The more complex the seedFormatString, the more secure the TOTP
+The seedFormatString is checked when sendmailx starts, and an error will be displayed if the seedFormatString contains any invalid combination.
 
-Do not use any date or time symbol in the seedFormatString more than once (both s and ss is defined as being used once), otherwise the recognition of the TOTP passcode may not work.
+The more complex the seedFormatString, the more secure the TOTP
 
 You must include at least one s and one m symbol in the seedFormatString
 
