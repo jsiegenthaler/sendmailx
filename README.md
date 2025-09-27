@@ -174,13 +174,13 @@ Set up an automation in Apple HomeKit with the following steps:
 
 Step 1: Date
 
-Displayed as <Current Date>
+Displayed as \<Current Date\>
 
 Step 2: Format Date
 
-Displayed as Format <Date>
+Displayed as Format \<Date\>
 * Date Format = Custom
-* Format String = <a secret format string, see below>
+* Format String = \<a secret format string, see below\>
 * Locale = Default
 
 Step 3: Calculate
@@ -192,14 +192,14 @@ Tip: run the automation at this point and confirm that a number is generated. Th
 
 Step 4: Text
 * Enter the url in this text field, example:
-http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=<Calculation Result>
+http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=\<Calculation Result\>
 
-Note that <Calculation Result> is the result from the Calculation step.
+Note that \<Calculation Result\> is the result from the Calculation step.
 Set the subject, body and mailto as desired.
 
 Step 5: Get contents of URL
 Displayed as 
-* Get contents of <Text>
+* Get contents of \<Text\>
 
 Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success
 {
