@@ -14,7 +14,7 @@ const fns = require("date-fns");
 
 // for the http server
 const express = require("express");
-const http = require("http");
+const http = require("http"); // https://www.w3schools.com/nodejs/nodejs_http.asp
 const app = express();
 const server = http.createServer(app);
 
@@ -102,6 +102,7 @@ try {
 // add an error handler event to the server
 server.on("error", function (err) {
   // some error occured, show it
+  console.log("caught some error in server.on")
   console.log("error:", err.code, err.syscall, err.address, err.port);
 });
 
@@ -221,6 +222,8 @@ app.use("/", (req, res) => {
     return;
   } catch (err) {
     // some error occured, handle it nicely
+    // https://expressjs.com/en/guide/error-handling.html
+    //console.log("caught some error in app.use")
     res.json({ error: err });
     //console.log('url: "' + reqUrl + '"');
     console.log("error:", err);
