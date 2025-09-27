@@ -229,9 +229,11 @@ As can be seen in the example, the seed number of 20250927132730 can be readily 
 To make identification of the seed harder, it is recommended to set the seedFormatString to a combination that does not folllow the normal date time sequence.
 
 Example:
-* Normal datetime sequence: yyyyMMddhhmmss = 20250927132930
-* Alternative datetime sequence: ssddqqyymmMMhh = 30270325290913 
-* Alternative datetime sequence: mmhhMMssyydd = 291309302527
+* Normal datetime sequence: yyyyMMddhhmmss = 20250927132930 (do not use, easily guessable)
+* Example datetime sequence 1: ssddqqyymmMMHH = 30270325290913 
+* Example datetime sequence 2: mmHHMMssyydd = 291309302527
+* Example datetime sequence 3: emqHsMyyd = 72931330292527
+
 
 Notes
 The symbols (YYYY, MM, dd, HH, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
@@ -244,7 +246,7 @@ Useful symbols:
   * ee weekday, 01 to 07 (or just e = 1 to 7)
   * ww week, 01 to 52 (or just w = 1 to 52)
   * MM month, 01 to 12 (or just M = 1 to 12)
-  * QQ quarter, 01 to 04 (or just Q: 1 to 4)
+  * qq quarter, 01 to 04 (or just q: 1 to 4)
   * yy year, last 2 digits of year (or yyyy = 4 digit year)
 
 Tip: avoid use of h (1-12), as 12-hour time is ambiguous when no a.m. or p.m. indication exists.
