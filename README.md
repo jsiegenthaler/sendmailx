@@ -234,7 +234,7 @@ Example:
 * Alternative datetime sequence: mmhhMMssyydd = 291309302527
 
 Notes
-* The symbols (hh, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+The symbols (YYYY, MM, dd, HH, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
 Useful symbols:
 
   * ss seconds, 00 to 59 (or just s = 0 to 59)
@@ -249,9 +249,11 @@ Useful symbols:
 
 Tip: avoid use of h (1-12), as 12-hour time is ambiguous when no a.m. or p.m. indication exists.
 
-* The more complex the seedFormatString, the more secure the TOTP
-* Do not use any date or time symbol in the seedFormatString more than once (both s and ss is defined as being used once), otherwise the recognition of the TOTP passcode may not work.
-* You must include at least one s and one m symbol in the seedFormatString
+The more complex the seedFormatString, the more secure the TOTP
+
+Do not use any date or time symbol in the seedFormatString more than once (both s and ss is defined as being used once), otherwise the recognition of the TOTP passcode may not work.
+
+You must include at least one s and one m symbol in the seedFormatString
 
 The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds)
 
