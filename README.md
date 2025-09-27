@@ -156,15 +156,13 @@ http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
 
 4. You should receive the following response:
 ```
-{"success":true}
+{"success":true,"cmd":"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"}
 ```
 This is correct as at this stage no TOTP is configured
 
 If you started with default authentication, and no TOTP code was supplied, you will see:
 ```
-{
-  "error" : "unauthorised"
-}
+{"error":"ErrAuthFail: unauthorised"}
 ```
 
 
@@ -204,8 +202,8 @@ Displayed as
 Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success:
 ```
 {
+  "success" : true,
   "cmd" : "cmd: <>"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"
-  "success" : true
 }
 ```
 
