@@ -185,28 +185,29 @@ Displayed as Format \<Date\>
 
 Step 3: Calculate
 
-Displayed as
-* Formatted Date \* \<your4to6DigitPinNumber\>
+Displayed as Formatted Date \* \<your4to6DigitPinNumber\>
 
-Tip: run the automation at this point and confirm that a number is generated. This number is your token
+Tip: run the automation at this point and confirm that a number is generated. This number is your token.
 
 Step 4: Text
 * Enter the url in this text field, example:
 http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=\<Calculation Result\>
 
 Note that \<Calculation Result\> is the result from the Calculation step.
+Whitespaces must be url encoded to %20.
 Set the subject, body and mailto as desired.
 
 Step 5: Get contents of URL
 Displayed as 
 * Get contents of \<Text\>
 
-Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success
+Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success:
+```
 {
   "cmd" : "cmd: <>"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"
   "success" : true
 }
-
+```
 
 
 
