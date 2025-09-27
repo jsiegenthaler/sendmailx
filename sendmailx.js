@@ -41,61 +41,29 @@ var options = stdio.getopt({
     default: 3100,
   },
 });
+var errPrefix = ""; // global variable
 //console.log('%s options', packagejson.name, options);
 
 // show version and arguments during startup
 console.log("%s v%s", packagejson.name, packagejson.version);
-console.log("auth:", options.auth);
+//console.log("auth:", options.auth);
 
 
-// wrap the config parser in an error handler
+// config validator in an error handler
 try {
-  // read the config file, ensure something exists
-  let rawdata = fs.readFileSync("config.json");
-  var config = JSON.parse(rawdata);
-  /*
-  console.log('config:' + config);
-  console.log('config.totp:' + config.totp);
-  console.log('config.authorisedRecipients:' + config.authorisedRecipients);
-  */
-  let totp = config.totp;
-  let errPrefix = "config file error: ";
-  // check we have some minimum security in the settings
-  // seedFormatString must include s to ensure fast token rollover
-  if (!totp.seedFormatString.includes("s")) {
-    throw errPrefix + "seedFormatString must contain s";
-  }
-  // seedFormatString must include m to ensure fast token rollover
-  if (!totp.seedFormatString.includes("m")) {
-    throw errPrefix + "seedFormatString must contain m";
-  }
-  // seedFormatString must be 8 to 20 characters long
-  if (!(totp.seedFormatString.length >= 8 && totp.pin.toString().length <= 20)) {
-    throw errPrefix + "seedFormatString must be between 8 and 20 characters long";
-  }
-  // PIN must be 4 to 6 characters long
-  if (!(totp.pin.toString().length >= 4 && totp.pin.toString().length <= 6)) {
-    throw errPrefix + "PIN must be between 4 and 6 characters long";
-  }
-  // PIN must not start with 0 (otherwise the number checks fail, and the multiplication effect is too small)
-  if ((totp.pin.toString().startsWith("0"))) {
-    throw errPrefix + "PIN must not begin with 0";
-  }
-  // PIN must be numeric and an integer
-  if (isNaN(Number(totp.pin)) ) {
-    throw errPrefix + "PIN must be a 4 to 6 digit whole number";
-  }
-  // PIN must not be too simple and must not be disivible by 10
-  if (generateEasyPins().includes(totp.pin) || ((totp.pin % 10) == 0)) {
-    throw errPrefix + "PIN must be more complex";
-  }
+  // read the config file and validate it
+  let rawdata = fs.readFileSync("config.json"); // local variable
+  var config = JSON.parse(rawdata); // global variable
+  validateConfig(config); //validate file
 
   //+++++ end of startup code +++++
 } catch (err) {
   // some error occured, handle it nicely
-  console.log("error:", err.message || err);
+  console.log("error:", errPrefix + ':', err.message || err);
   return;
 }
+//+++++ end of main code block +++++
+
 
 
 
@@ -140,12 +108,12 @@ app.use("/", (req, res) => {
 
     // raise error if we have no data
     if (urlPathParts.length > 1 && urlPathParts[1].length == 0) {
-      throw errPrefix + "no parameters supplied";
+      throw {name : "ErrNoParam", message : "no parameters supplied"}; 
     }
 
     // raise error if we have no ?
     if (urlPathParts[1].indexOf("?") == -1) {
-      throw errPrefix + ('? character not found: "' + req.url + '"');
+      throw {name : "ErrNoQuestionMark", message : "? character not found in url"}; 
     }
 
     // convert url params to a json object
@@ -160,25 +128,28 @@ app.use("/", (req, res) => {
     console.log("body:", params.body);
     console.log("sig:", params.sig);
     */
-
-    var errPrefix = "error: ";
+    
 
     // raise error if token invalid (unauthorised)
     if (!isTokenValid(options.auth, params.token, config.totp)) {
-      throw "unauthorised";
+      throw {name : "ErrAuthFail", message : "unauthorised"}; 
     }
 
     // parse parameters
-    errPrefix = "url parameter error, ";
-
-    // raise error if we have no mailto
-    if (!params.mailto) {
-      throw errPrefix + ('mailto missing: "' + req.url + '"');
-    }
 
     // raise error if we have no subject or no body
     if (!params.subject && !params.body) {
-      throw errPrefix + ('subject or body must be supplied: "' + req.url + '"');
+      throw {name : "ErrNoSubjectOrBody", message : "subject or body missing"}; 
+    }
+
+    // raise error if we have no mailto
+    if (!params.mailto) {
+      throw {name : "ErrNoMailto", message : "mailto missing in url"}; 
+    }
+
+    // raise error if the mailto is not authorised
+    if ( config.authorisedRecipients.length > 0 && config.authorisedRecipients.indexOf(params.mailto) == -1) {
+      throw {name : "ErrMailToNotAuthorised", message : "mailto contains an non-authorised address: " + params.mailto}; 
     }
 
     // create the sendmail command
@@ -197,7 +168,7 @@ app.use("/", (req, res) => {
       cmd = cmd + "\n\n--\n" + params.sig;
     } // add sig if present (optional) separated by --
     cmd = cmd + '" | sendmail ' + params.mailto;
-    console.log("cmd", JSON.stringify(cmd));
+    console.log("executing cmd:", JSON.stringify(cmd));
 
     // execute the sendmail command
     // https://stackabuse.com/executing-shell-commands-with-node-js/
@@ -216,7 +187,7 @@ app.use("/", (req, res) => {
       //console.log(`stdout: ${stdout}`);
       console.log("success");
       // return a success
-      res.json({ success: true });
+      res.json({ cmd: cmd, success: true });
     });
 
     return;
@@ -224,9 +195,10 @@ app.use("/", (req, res) => {
     // some error occured, handle it nicely
     // https://expressjs.com/en/guide/error-handling.html
     //console.log("caught some error in app.use")
-    res.json({ error: err });
-    //console.log('url: "' + reqUrl + '"');
-    console.log("error:", err);
+    console.log(err);
+    const errText = err.name + ': ' + err.message;
+    console.log("error when parsing url:", errText);
+    res.json({ error: errText });
   }
 });
 
@@ -271,48 +243,58 @@ function isTokenValid(auth, token, totp) {
   }
 
   // decode the token
-  var decodedtoken = atob(token) / totp.pin;
-  //console.log("decodedtoken", decodedtoken);
+  var decodedtoken = Number(token) / Number(totp.pin);
+  /*
+  console.log("token", token);
+  console.log("pin", totp.pin);
+  console.log("decodedtoken", decodedtoken);
+  */
 
-  // formatted date string acording to the totp.seedFormatString
+  // formatted date string acording to the totp.dateFormatString
   // https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md
   // https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 
-  // get current date using totp.seedFormatString
-  // format(new Date(), "yyyy-MM-dd");
-  var curdate = new Date(); // get the date now (includes time)
-  var curdatetokenformatted = fns.format(curdate, totp.seedFormatString); // format to the token format
-  var curdatetoken = fns.parse(
-    curdatetokenformatted,
-    totp.seedFormatString,
-    new Date()
-  ); // create new date using token format
+  //console.log("dateFormatString", totp.dateFormatString); // dateFormatString
+  //console.log("curdatetokenformatted", curdatetokenformatted); // current date in token format
+  //console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
+  // get current date in same dateFormatString
+  let dt = new Date() // date in utc
+  dt = dt.setMilliseconds(0); // remove ms
+  let df = fns.format(dt, totp.dateFormatString); // date formated to the token format
+  //console.log("encoded date", df)
+  let curntdate = fns.parse(
+      df,
+      totp.dateFormatString,
+      new Date()
+    ); // formatted date parsed back to normal date
   /*
-  console.log("curdate", curdate.toLocaleString()); // current date and time
-  console.log("curdatetokenformatted", curdatetokenformatted); // current date in token format
-  console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
+  console.log("dt", dt.toLocaleString()); // current date and time
+  console.log("dateFormatString", totp.dateFormatString); // dateFormatString
+  console.log("df", df); // current date in token format
   */
 
-  // get date from token using totp.seedFormatString
+  // parse token back to date using totp.dateFormatString
   // any missing date components fallback to smallest valid values
-  var tokendate = fns.parse(
+  let tokendate = fns.parse(
     decodedtoken.toString(),
-    totp.seedFormatString,
+    totp.dateFormatString,
     new Date()
   );
-  var maxtokendate = new Date(tokendate.getTime() + totp.validityPeriod * 1000); // validityPeriod is in seconds, need milliseconds
-  //console.log("tokendate", tokendate.toLocaleString());
-  //console.log("maxtokendate", maxtokendate.toLocaleString());
+  let maxtndate = new Date(tokendate.getTime() + totp.validityPeriod * 1000); // max token date, validityPeriod is in seconds, need milliseconds
+  /*
+  console.log("curntdate", curntdate.toLocaleString()); // the current date, decoded back from token format, as a date
+  console.log("tokendate", tokendate.toLocaleString());
+  console.log("validityPeriod", totp.validityPeriod);
+  console.log("maxtndate", maxtndate.toLocaleString());
+  console.log("maxtndate - curntdate in ms", maxtndate - curntdate);
+  */
 
-  // test if curdatetoken is between tokendate and maxtokendate
-  if (
-    curdatetoken.getTime() >= tokendate.getTime() &&
-    curdatetoken.getTime() <= maxtokendate.getTime()
-  ) {
-    console.log("token valid");
+  // token is valid if the diff between maxtndate and curntdate is less than validityPeriod (in secs) (or validityPeriod*1000 ms)
+  if ( (maxtndate - curntdate) <= (totp.validityPeriod * 1000) ) {
+    //console.log("token valid");
     return true;
   } else {
-    console.log("token invalid");
+    //console.log("token invalid");
     return false;
   }
 }
@@ -325,6 +307,84 @@ server.listen(options.port, () => {
 });
 
 
+
+
+
+
+// ++++ validate config.json file ++++
+function validateConfig(config) {
+  /*
+  console.log('config:' + config);
+  console.log('config.totp:' + config.totp);
+  console.log('config.authorisedRecipients:' + config.authorisedRecipients);
+  */
+
+  let totp = config.totp; // local variable in this function only
+
+  errPrefix = "validating config file";
+  // check we have some minimum security in the settings
+  // dateFormatString must include s to ensure fast token rollover
+  if (!totp.dateFormatString.includes("s")) {
+    throw {name : "SeedMissingS", message : "dateFormatString must contain s or ss"}; 
+  }
+  // dateFormatString must include m to ensure fast token rollover
+  if (!totp.dateFormatString.includes("m")) {
+    throw {name : "SeedMissingM", message : "dateFormatString must contain m or mm"}; 
+  }
+  // dateFormatString first symbol must be single symbol so as not to generate a leading 0
+  // check if first and second characters are different
+  if (totp.dateFormatString.substring(0, 1) == totp.dateFormatString.substring(1, 2)) {
+    throw {name : "SeedInvalidFirstchar", message : "dateFormatString must start with a single symbol"}; 
+  }
+
+  // dateFormatString must be 8 to 12 characters long
+  if (!(totp.dateFormatString.length >= 8 && totp.pin.toString().length <= 12)) {
+    throw {name : "SeedLenInvalid", message : "dateFormatString must be between 8 and 12 characters long"}; 
+  }
+  // check if dateFormatString is valid by doing a test encode and decode of the date
+  // throw an error if not allowed or if any difference > 0 seconds occurs
+  let dt = new Date() // date in utc
+  //console.log("encoding date:",dt)
+  dt = dt.setMilliseconds(0); // remove ms
+  //console.log("encoding and decoding using", totp.dateFormatString, "(ignoring milliseconds)")
+  let df = fns.format(dt, totp.dateFormatString); // date formated to the token format
+  //console.log("encoded date", df)
+  let ddt = fns.parse(
+      df,
+      totp.dateFormatString,
+      new Date()
+    ); // formatted date parsed back to normal date, this tests the dateFormatString
+  //console.log("decoded date: ",ddt) // the result
+  //console.log("datetime difference in ms:",ddt - dt) // the difference in ms
+  if (ddt - dt == 0) {
+    //console.log("dateFormatString OK");
+  } else {
+    throw {name : "SeedNotValid", message : "dateFormatString not suitable: "+ totp.dateFormatString}; 
+  }
+
+
+  // pin checks
+
+  // PIN must be 4 to 6 characters long
+  if (!(totp.pin.toString().length >= 4 && totp.pin.toString().length <= 6)) {
+    throw {name : "ErrPinLenInvalid", message : "pin must be between 4 and 6 characters long"}; 
+  }
+  // PIN must not start with 0 (otherwise the number checks fail, and the multiplication effect is too small)
+  if ((totp.pin.toString().startsWith("0"))) {
+    throw {name : "ErrPinFirstDigitZero", message : "pin must not begin with 0"}; 
+  }
+  // PIN must be numeric and an integer
+  if (isNaN(Number(totp.pin)) ) {
+    throw {name : "ErrPinNaN", message : "pin must be a 4 to 6 digit whole number"}; 
+  }
+  // PIN must not be too simple and must not be disivible by 10
+  if (generateEasyPins().includes(totp.pin.toString()) || ((Number(totp.pin) % 10) == 0)) {
+    throw {name : "ErrPinTooSimple", message : "pin too simple"}; 
+  }
+  //console.log("pin OK"); // if we got here, pin is ok
+  errPrefix = "";
+  return false;
+}
 
 
 // ++++ a generator of easy-to-guess pins ++++
