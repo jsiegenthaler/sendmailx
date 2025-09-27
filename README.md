@@ -119,13 +119,11 @@ sendmailx listens on your local network and processes any GET command it receive
 * Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-saved in the authorisedRecipients section of the config.json
 
 
-## Setting a TOTP (Time limited One Time Passcode)
-sendmailx listens on your local network and processes any GET command it receives. To provide for some security, and to prevent abuse of the sndmail function by unwanted persons. a authentication method is included.
-Default authentication is a time-limited one time passcode, or TOTP for short.
-The TOTP is based on time of day, obfuscated and protected by a secret PIN-code.
+## Setting a TOTP (Time-limited One Time Passcode)
+The TOTP is generated using the current datetime and a secret PIN code.
 
 ## seedFormatString (in config.json)
-The seedFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. this number is then used to seed the TOTP code generation.
+The seedFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used to in the TOTP code generation.
 
 Example:
 For a date ot 27.09.2025 13:29:30, a seedFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
@@ -145,7 +143,7 @@ The PIN code is a 4 to 6 digit numeric code which is used together with the seed
 * PIN codes that are too simple will be rejected by sendmailx
 * Use a PIN code not staring with 0, containing 4 to 6 different digits
 
-# config
+# Config
 The config for sendmailx is held in the config.json file. An example config is provided as shown below:
 ```
 {
@@ -164,5 +162,5 @@ The config for sendmailx is held in the config.json file. An example config is p
 * totp.pin - a secret PIN code also used to generate the TOTP
 * totp.validityPeriod - the length of time in seconds that the TOTP remians valid
 
-* authorisedEmails - a list of authorised email addresses that sendmailx is allowed to send emails to
+* authorisedEmails - a comma-separated list of authorised email addresses that sendmailx is allowed to send emails to. The list can be stored over multiple lines in the json file. To allow sending of emails to anyone, leave the authorisedEmails empty.
 
