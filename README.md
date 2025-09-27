@@ -158,38 +158,51 @@ http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
 ```
 {"success":true}
 ```
+This is correct as at this stage no TOTP is configured
 
+If you started with default authentication, and no TOTP code was supplied, you will see:
 ```
 {
   "error" : "unauthorised"
 }
 ```
 
-This is correct as at this stage no TOTP is configured
 
-
-4..3100/?subject=Test&body
 
 ### Testing from Apple HomeKit
 Set up an automation in Apple HomeKit with the following steps:
 
-Step 1: Current Date
+Step 1: Date
+
+Displayed as <Current Date>
 
 Step 2: Format Date
-Date Format = Custom
-Format String = <a secret format string, see below>
-Locale = Default
+
+Displayed as Format <Date>
+* Date Format = Custom
+* Format String = <a secret format string, see below>
+* Locale = Default
 
 Step 3: Calculate
-Formatted Date * <4to6DigitPinNumber>
 
-Tip: run the automation at this point and confirm that a number is generated. This number is your TOTP
+Displayed as
+* Formatted Date * <your4to6DigitPinNumber>
+
+Tip: run the automation at this point and confirm that a number is generated. This number is your token
 
 Step 4: Text
-Enter the url in this text field, example:
-http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
+* Enter the url in this text field, example:
+http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=<Calculation Result>
 
-Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with
+Note that <Calculation Result> is the result from the Calculation step.
+Set the subject, body and mailto as desired.
+
+Step 5: Get contents of URL
+Displayed as 
+* Get contents of <Text>
+
+
+Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success
 {
   "error" : "unauthorised"
 }
@@ -222,11 +235,23 @@ Example:
 
 Notes
 * The symbols (hh, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+Useful symbols:
+** ss seconds, 00 to 59 (or just s = 0 to 59)
+** mm minutes, 00 to 59 (or just m = 0 to 59)
+** HH hour, 00 to 23 (or just h = 0 to 12)
+** dd day, 01 to 31 (or just d = 1 to 31)
+** ee weekday, 01 to 07 (or just e = 1 to 7)
+** ww week, 01 to 52 (or just w = 1 to 52)
+** MM month, 01 to 12 (or just M = 1 to 12)
+** QQ quarter, 01 to 04 (or just Q: 1 to 4)
+** yy year, last 2 digits of year (or yyyy = 4 digit year)
+
+
 * The more complex the seedFormatString, the more secure the TOTP
 * Do not use any date or time symbol in the seedFormatString more than once (both s and ss is defined as being used once), otherwise the recognition of the TOTP passcode may not work.
 * You must include at least one s and one m symbol in the seedFormatString
 
-The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in cofnig.json, in seconds)
+The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds)
 
 ### PIN code
 The PIN code is a 4 to 6 digit numeric code which is used together with the seedFormatString to generate the TOTP.
