@@ -32,6 +32,29 @@ sendmailx is an extension to the linux sendmail command. You need to have sendma
 
 See this [useful guide to setting up sendmail on a raspberry pi](https://medium.com/swlh/setting-up-gmail-and-other-email-on-a-raspberry-pi-6f7e3ad3d0e).
 
+# Config
+The config for sendmailx is held in the config.json file. An example config is provided as shown below:
+```
+{
+	"totp": {
+		"seedFormatString": "mmhhMMssyydd",
+		"pin": "7385",
+		"validityPeriod": 5
+	},
+	"authorisedEmails": [
+		"example@anywhere.com",
+		"another.example@gmailx.com"
+	]
+}
+```
+* totp.seedFormatString - the seed format string to generate the seed for the TOTP
+* totp.pin - a secret PIN code also used to generate the TOTP
+* totp.validityPeriod - the length of time in seconds that the TOTP remians valid
+
+* authorisedEmails - a comma-separated list of authorised email addresses that sendmailx is allowed to send emails to. The list can be stored over multiple lines in the json file. To allow sending of emails to anyone, leave the authorisedEmails empty.
+
+Full details of the TOTP are descripbed in the Security section of this readme file.
+
 
 # Installing sendmailx
 I run sendmailx on my raspberry pi. To install the latest version with NPM:
@@ -152,24 +175,5 @@ The PIN code is a 4 to 6 digit numeric code which is used together with the seed
 * PIN codes that are too simple will be rejected by sendmailx
 * Use a PIN code not staring with 0, containing 4 to 6 different digits
 
-# Config
-The config for sendmailx is held in the config.json file. An example config is provided as shown below:
-```
-{
-	"totp": {
-		"seedFormatString": "mmhhMMssyydd",
-		"pin": "7385",
-		"validityPeriod": 5
-	},
-	"authorisedEmails": [
-		"example@anywhere.com",
-		"another.example@gmailx.com"
-	]
-}
-```
-* totp.seedFormatString - the seed format string to generate the seed for the TOTP
-* totp.pin - a secret PIN code also used to generate the TOTP
-* totp.validityPeriod - the length of time in seconds that the TOTP remians valid
 
-* authorisedEmails - a comma-separated list of authorised email addresses that sendmailx is allowed to send emails to. The list can be stored over multiple lines in the json file. To allow sending of emails to anyone, leave the authorisedEmails empty.
 
