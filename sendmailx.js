@@ -61,17 +61,17 @@ try {
   let totp = config.totp;
   let errPrefix = "config file error: ";
   // check we have some minimum security in the settings
-  // formatString must include s to ensure fast token rollover
-  if (!totp.formatString.includes("s")) {
-    throw errPrefix + "formatString must contain s";
+  // seedFormatString must include s to ensure fast token rollover
+  if (!totp.seedFormatString.includes("s")) {
+    throw errPrefix + "seedFormatString must contain s";
   }
-  // formatString must include m to ensure fast token rollover
-  if (!totp.formatString.includes("m")) {
-    throw errPrefix + "formatString must contain m";
+  // seedFormatString must include m to ensure fast token rollover
+  if (!totp.seedFormatString.includes("m")) {
+    throw errPrefix + "seedFormatString must contain m";
   }
-  // formatString must be 8 to 20 characters long
-  if (!(totp.formatString.length >= 8 && totp.pin.toString().length <= 20)) {
-    throw errPrefix + "formatString must be between 8 and 20 characters long";
+  // seedFormatString must be 8 to 20 characters long
+  if (!(totp.seedFormatString.length >= 8 && totp.pin.toString().length <= 20)) {
+    throw errPrefix + "seedFormatString must be between 8 and 20 characters long";
   }
   // PIN must be 4 to 6 characters long
   if (!(totp.pin.toString().length >= 4 && totp.pin.toString().length <= 6)) {
@@ -271,16 +271,17 @@ function isTokenValid(auth, token, totp) {
   var decodedtoken = atob(token) / totp.pin;
   //console.log("decodedtoken", decodedtoken);
 
-  // formatted date string acording to the totp.formatString
+  // formatted date string acording to the totp.seedFormatString
   // https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md
+  // https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 
-  // get current date using totp.formatString
+  // get current date using totp.seedFormatString
   // format(new Date(), "yyyy-MM-dd");
   var curdate = new Date(); // get the date now (includes time)
-  var curdatetokenformatted = fns.format(curdate, totp.formatString); // format to the token format
+  var curdatetokenformatted = fns.format(curdate, totp.seedFormatString); // format to the token format
   var curdatetoken = fns.parse(
     curdatetokenformatted,
-    totp.formatString,
+    totp.seedFormatString,
     new Date()
   ); // create new date using token format
   /*
@@ -289,11 +290,11 @@ function isTokenValid(auth, token, totp) {
   console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
   */
 
-  // get date from token using totp.formatString
+  // get date from token using totp.seedFormatString
   // any missing date components fallback to smallest valid values
   var tokendate = fns.parse(
     decodedtoken.toString(),
-    totp.formatString,
+    totp.seedFormatString,
     new Date()
   );
   var maxtokendate = new Date(tokendate.getTime() + totp.validityPeriod * 1000); // validityPeriod is in seconds, need milliseconds
