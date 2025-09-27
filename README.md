@@ -228,7 +228,7 @@ For a date ot 27.09.2025 13:29:30, a seedFormatString of yyyyMMddhhmmss produces
 As can be seen in the example, the seed number of 20250927132730 can be readily identified as a date and time.
 To make identification of the seed harder, it is recommended to set the seedFormatString to a combination that does not folllow the normal date time sequence.
 
-Example:
+Examples:
 * Normal datetime sequence: yyyyMMddhhmmss = 20250927132930 (do not use, easily guessable)
 * Example datetime sequence 1: ssddqqyymmMMHH = 30270325290913 
 * Example datetime sequence 2: mmHHMMssyydd = 291309302527
@@ -236,7 +236,8 @@ Example:
 
 
 Notes
-The symbols (YYYY, MM, dd, HH, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+The symbols (yyyy, MM, dd, HH, mm, ss etc) are defined in the [Unicode Technical Standard #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+
 Useful symbols:
 
   * ss seconds, 00 to 59 (or just s = 0 to 59)
