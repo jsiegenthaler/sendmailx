@@ -187,7 +187,7 @@ app.use("/", (req, res) => {
       //console.log(`stdout: ${stdout}`);
       console.log("success");
       // return a success
-      res.json({ cmd: cmd, success: true });
+      res.json({ success: true, cmd: cmd });
     });
 
     return;
