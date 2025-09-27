@@ -33,7 +33,7 @@ sendmailx is an extension to the linux sendmail command. You need to have sendma
 See this [useful guide to setting up sendmail on a raspberry pi](https://medium.com/swlh/setting-up-gmail-and-other-email-on-a-raspberry-pi-6f7e3ad3d0e).
 
 # Config
-The config for sendmailx is held in the config.json file. An example config is provided as shown below:
+The config for sendmailx is held in the config.json file, which must be in the same folder as sendmailx.js. An example config is provided when you install sendmailx, as shown below:
 ```
 {
 	"totp": {
