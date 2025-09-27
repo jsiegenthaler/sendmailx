@@ -47,7 +47,7 @@ The config for sendmailx is held in the config.json file, which must be in the s
 	]
 }
 ```
-* totp.seedFormatString - the seed format string to generate the seed for the TOTP
+* totp.seedFormatString - the seed format string to generate the TOTP
 * totp.pin - a secret PIN code also used to generate the TOTP
 * totp.validityPeriod - the length of time in seconds that the TOTP remians valid
 
@@ -139,6 +139,65 @@ $ pm2 describe sendmailx
 For more information about pm2, see https://github.com/Unitech/pm2
 
 
+## Using sendmailx
+### Testing from a PC without autentication
+
+1. Ensure sendmailx is installed on your raspberry pi, and start it with the -a none option (no authentication), example:
+```
+sendmailx.js -a none
+```
+
+
+2. Copy the following url, and enter the ip address of your raspberry pi (instead of 192.168.0.1) in the url. Note that at this stage we have not configured any authentication.
+
+http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
+
+3. Paste the updated url into your browser and hit Enter
+
+4. You should receive the following response:
+```
+{"success":true}
+```
+
+
+{
+  "error" : "unauthorised"
+}
+```
+
+This is correct as at this stage no TOTP is configured
+
+
+4..3100/?subject=Test&body
+
+### Testing from Apple HomeKit
+Set up an automation in Apple HomeKit with the following steps:
+
+Step 1: Current Date
+
+Step 2: Format Date
+Date Format = Custom
+Format String = <a secret format string, see below>
+Locale = Default
+
+Step 3: Calculate
+Formatted Date * <4to6DigitPinNumber>
+
+Tip: run the automation at this point and confirm that a number is generated. This number is your TOTP
+
+Step 4: Text
+Enter the url in this text field, example:
+http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
+
+Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with
+{
+  "error" : "unauthorised"
+}
+
+
+
+
+
 # Security
 sendmailx listens on your local network and processes any GET command it receives. To provide for some security, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
 * TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns 401 Unauthorised
@@ -148,7 +207,7 @@ sendmailx listens on your local network and processes any GET command it receive
 ## Setting a TOTP (Time-limited One Time Passcode)
 The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in validityPeriod (seconds) in the config.json.
 
-## seedFormatString
+### seedFormatString
 The seedFormatString (in config.json) is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used to in the TOTP code generation.
 
 Example:
@@ -169,11 +228,14 @@ Notes
 
 The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in cofnig.json, in seconds)
 
-## PIN code
+### PIN code
 The PIN code is a 4 to 6 digit numeric code which is used together with the seedFormatString to generate the TOTP.
 * Do not share the PIN code with anyone.
 * PIN codes that are too simple will be rejected by sendmailx
 * Use a PIN code not staring with 0, containing 4 to 6 different digits
 
+## Setting the Authorised Email List
+sendmailx can be configured to only send emails to ameial addresses stored in the authorisedEmails section of the config.json file. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
+If authorisedEmails is empty, then sendmailx will send to any email in the http GET command.
 
