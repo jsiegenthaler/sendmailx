@@ -81,8 +81,8 @@ server.on("error", function (err) {
 // handle
 // ?subject=<subject>&body=<bodytext>
 // examples:
-// GET no auth: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=jbsiegenthaler@gmail.com
-// GET totp token: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=jbsiegenthaler@gmail.com
+// GET no auth: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=myemail@gmail.com
+// GET totp token: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=myemail@gmail.com
 // GET: http://192.168.0.100?subject=Test%20mail&body=Hey%20how%20cool
 app.use("/", (req, res) => {
   const reqUrl = req.url;
@@ -153,7 +153,6 @@ app.use("/", (req, res) => {
     }
 
     // create the sendmail command
-    // echo -e "Subject:Apartment Status\n\nJochen's apartment has just become unoccupied.\nSent by Automation" | sendmail jbsiegenthaler@gmail.com
     var cmd = 'echo -e "';
     if (params.subject) {
       cmd = cmd + "Subject:" + params.subject;
