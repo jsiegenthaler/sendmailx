@@ -186,7 +186,7 @@ Displayed as Format <Date>
 Step 3: Calculate
 
 Displayed as
-* Formatted Date * <your4to6DigitPinNumber>
+* Formatted Date \* \<your4to6DigitPinNumber\>
 
 Tip: run the automation at this point and confirm that a number is generated. This number is your token
 
