@@ -37,7 +37,7 @@ The config for sendmailx is held in the config.json file, which must be in the s
 ```
 {
 	"totp": {
-		"seedFormatString": "mmhhMMssyydd",
+		"dateFormatString": "mmhhMMssyydd",
 		"pin": "7385",
 		"validityPeriod": 5
 	},
@@ -47,7 +47,7 @@ The config for sendmailx is held in the config.json file, which must be in the s
 	]
 }
 ```
-* totp.seedFormatString - the seed format string to generate the TOTP
+* totp.dateFormatString - the seed format string to generate the TOTP
 * totp.pin - a secret PIN code also used to generate the TOTP
 * totp.validityPeriod - the length of time in seconds that the TOTP remians valid
 
@@ -201,10 +201,10 @@ Step 5: Get contents of URL
 Displayed as 
 * Get contents of <Text>
 
-
 Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success
 {
-  "error" : "unauthorised"
+  "cmd" : "cmd: <>"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"
+  "success" : true
 }
 
 
@@ -220,19 +220,19 @@ sendmailx listens on your local network and processes any GET command it receive
 ## Setting a TOTP (Time-limited One Time Passcode)
 The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in validityPeriod (seconds) in the config.json.
 
-### seedFormatString
-The seedFormatString (in config.json) is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used to in the TOTP code generation.
+### dateFormatString
+The dateFormatString (in config.json) is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the TOTP code generation.
 
 Example:
-For a date ot 27.09.2025 13:29:30, a seedFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
-As can be seen in the example, the seed number of 20250927132730 can be readily identified as a date and time.
-To make identification of the seed harder, it is recommended to set the seedFormatString to a combination that does not folllow the normal date time sequence.
+For a date ot 27.09.2025 13:29:30, a dateFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
+As can be seen in the example, the number of 20250927132730 can be readily identified as a date and time.
+To make identification of the date and time more dificult, it is recommended to set the dateFormatString to a combination that does not folllow the normal date time sequence.
 
 Examples:
 * Normal datetime sequence: yyyyMMddhhmmss = 20250927132930 (do not use, easily guessable)
 * Example datetime sequence 1: ssddqqyymmMMHH = 30270325290913 
-* Example datetime sequence 2: mmHHMMssyydd = 291309302527
-* Example datetime sequence 3: emqHsMyyd = 72931330292527
+* Example datetime sequence 2: mHHMMssyydd = 291309302527
+* Example datetime sequence 3: mhsyyddM = 29133025279
 
 
 Notes
@@ -250,21 +250,19 @@ Useful symbols:
   * qq quarter, 01 to 04 (or just q: 1 to 4)
   * yy year, last 2 digits of year (or yyyy = 4 digit year)
 
-Tip: avoid use of h (1-12), as 12-hour time is ambiguous when no a.m. or p.m. indication exists.
+The dateFormatString is checked when sendmailx starts, and an error will be displayed if the dateFormatString contains any invalid combination.
 
-The seedFormatString is checked when sendmailx starts, and an error will be displayed if the seedFormatString contains any invalid combination.
+The more complex the dateFormatString, the more secure the TOTP.
 
-The more complex the seedFormatString, the more secure the TOTP
+You must include at least one s and one m symbol in the dateFormatString.
 
-You must include at least one s and one m symbol in the seedFormatString
-
-The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds)
+The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds).
 
 ### PIN code
-The PIN code is a 4 to 6 digit numeric code which is used together with the seedFormatString to generate the TOTP.
+The PIN code is a 4 to 6 digit numeric code which is used together with the dateFormatString to generate the TOTP.
 * Do not share the PIN code with anyone.
-* PIN codes that are too simple will be rejected by sendmailx
-* Use a PIN code not staring with 0, containing 4 to 6 different digits
+* PIN codes that are too simple will be rejected by sendmailx.
+* Use a PIN code not staring with 0, containing 4 to 6 different digits.
 
 ## Setting the Authorised Email List
 sendmailx can be configured to only send emails to ameial addresses stored in the authorisedEmails section of the config.json file. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
