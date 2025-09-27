@@ -159,7 +159,7 @@ http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
 {"success":true}
 ```
 
-
+```
 {
   "error" : "unauthorised"
 }
