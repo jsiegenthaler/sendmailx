@@ -185,10 +185,12 @@ Tip: run the automation at this point and confirm that a number is generated. Th
 
 Step 4: Text
 * Enter the url in this text field, example:
-http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=\<Calculation Result\>
+http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=Calculation_Result
 
-Note that \<Calculation Result\> is the result from the Calculation step.
+Note that Calculation_Result is the result from the Calculation step.
+
 Whitespaces must be url encoded to %20.
+
 Set the subject, body and mailto as desired.
 
 Step 5: Get contents of URL
