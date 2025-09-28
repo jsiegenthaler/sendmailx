@@ -21,11 +21,8 @@ If you like this tool, consider buying me a coffee!<br>
 ## Send an email when the doorbell rings
 Send an email when the doorbell rings. I have a Shelly1 as my doorbell. The doorbell connects to the Shelly1 SW input using a relay on the doorbell buzzer. Thus when the doorbell button is pressed, the Shelly1 sees an input, and calls a url, which sends an email to me.
 
-## Let people know you have arrived home
-Send an email when your home detects you have arrived, using the native Apple HomeKit presence detection.
-
-## Let people know you have left home
-Send an email when your home notices you have left, using the native Apple HomeKit presence detection.
+## Let people know you arrive or leave home
+Send an email when your home detects you have arrived or left, using the native Apple HomeKit presence detection.
 
 # Prerequisite to using sendmailx
 sendmailx is an extension to the linux sendmail command. You need to have sendmail installed and working before you can use sendmailx.
@@ -140,7 +137,7 @@ For more information about pm2, see https://github.com/Unitech/pm2
 
 
 ## Using sendmailx
-### Testing from a PC without autentication
+### Testing from a PC without using autentication
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it with the -a none option (no authentication), example:
 ```
