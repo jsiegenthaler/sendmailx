@@ -252,8 +252,6 @@ The dateFormatString is checked when sendmailx starts, and an error will be disp
 
 The more complex the dateFormatString, the more secure the TOTP.
 
-You must include at least one s and one m symbol in the dateFormatString.
-
 The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds).
 
 ### PIN code
@@ -263,7 +261,7 @@ The PIN code is a 4 to 6 digit numeric code which is used together with the date
 * Use a PIN code not staring with 0, containing 4 to 6 different digits.
 
 ## Setting the Authorised Email List
-sendmailx can be configured to only send emails to ameial addresses stored in the authorisedEmails section of the config.json file. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
+sendmailx can be configured to only send emails to email addresses stored in the authorisedEmails section of the config.json file. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
 If authorisedEmails is empty, then sendmailx will send to any email in the http GET command.
 
