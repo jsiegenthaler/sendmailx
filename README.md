@@ -166,26 +166,30 @@ If you started with default authentication, and no TOTP code was supplied, you w
 ### Testing from Apple HomeKit
 Set up an automation in Apple HomeKit with the following steps:
 
-| Step | Action Name | Details | Notes |
-| ---- | ----------- | ------- | ----- | 
-| 1 | Date | Displayed as \<Current Date\> | No options needed | 
-| 2 | Format Date | Displayed as Format \<Date\>
+Step 1: Date
+
+Displayed as \<Current Date\>
+
+Step 2: Format Date
+
+Displayed as Format \<Date\>
 * Date Format = Custom
 * Format String = \<a secret format string, see below\>
-* Locale = Default | No options needed | 
-| 3 | Calculate | Displayed as Formatted Date \* \<your4to6DigitPinNumber\> | No options needed | 
-| 4 | Text | * Enter the url in this text field, example:
+* Locale = Default
+
+Step 3: Calculate
+
+Displayed as Formatted Date \* \<your4to6DigitPinNumber\>
+
+Tip: run the automation at this point and confirm that a number is generated. This number is your token.
+
+Step 4: Text
+* Enter the url in this text field, example:
 http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=\<Calculation Result\>
 
 Note that \<Calculation Result\> is the result from the Calculation step.
 Whitespaces must be url encoded to %20.
-Set the subject, body and mailto as desired. 
-
-Note that \<Calculation Result\> is the result from the Calculation step.
-Whitespaces must be url encoded to %20.
 Set the subject, body and mailto as desired.
-| No options needed | 
-
 
 Step 5: Get contents of URL
 Displayed as 
