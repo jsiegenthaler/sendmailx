@@ -4,7 +4,7 @@ const packagejson = require("./package.json");
 //const version = packagejson.version;
 
 // for handling the startup parameters
-const stdio = require("stdio");
+const stdio = require("stdio"); // https://github.com/sgmonda/stdio
 
 // for handling the json config file
 const fs = require("fs");
