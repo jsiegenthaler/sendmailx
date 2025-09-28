@@ -76,14 +76,13 @@ $ npm update sendmailx
 # Starting sendmailx
 The following examples assume you have sendmailx in a folder that your system can find. Update your PATH variables if needed. 
 
-To see the help text, start sendmailx without any arguments as follows:
+To see the help text, start sendmailx with -h or --help arguments as follows:
 ```
-$ node /home/pi/node_modules/sendmailx/sendmailx.js
+$ node /home/pi/node_modules/sendmailx/sendmailx.js -h
 ```
 
 sendmailx shows the following response:
 ```
-Missing option: "--"
 USAGE: node sendmailx.js [OPTION1] [OPTION2]... arg1 arg2...
 The following options are supported:
   -a, --auth <ARG1>             auth method to use ("totp" by default)
@@ -208,7 +207,10 @@ Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will res
 
 
 # Security
-sendmailx listens on your local network and processes any GET command it receives. To provide for some security, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
+sendmailx listens on your local network and processes any GET command it receives. It is designed only to run on a local network and never to be exposed to the internet. If it was exposed to the internet, unwanted persons could find it and access it and send emails via your raspberry pi.
+
+To provide for security on your local network, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
+
 * TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns 401 Unauthorised
 * Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-saved in the authorisedRecipients section of the config.json
 
