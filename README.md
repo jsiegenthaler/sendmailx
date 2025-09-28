@@ -194,8 +194,8 @@ Whitespaces must be url encoded to %20.
 Set the subject, body and mailto as desired.
 
 Step 5: Get contents of URL
-Displayed as 
-* Get contents of \<Text\>
+
+Displayed as Get contents of \<Text\>
 
 Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will respond with success:
 ```
