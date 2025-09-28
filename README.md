@@ -166,6 +166,12 @@ If you started with default authentication, and no TOTP code was supplied, you w
 ### Testing from Apple HomeKit
 Set up an automation in Apple HomeKit with the following steps:
 
+| Step | Action Name | Details | Notes |
+| ---- | ----------- | ------- | ----- | 
+| 1 | Date | Gets current date and time | No options needed | 
+| 2 | Date | Gets current date and time | No options needed | 
+
+
 Step 1: Date
 
 Displayed as \<Current Date\>
