@@ -139,7 +139,7 @@ app.use("/", (req, res) => {
 
     // raise error if we have no subject or no body
     if (!params.subject && !params.body) {
-      throw {name : "ErrNoSubjectOrBody", message : "subject or body missing"}; 
+      throw {name : "ErrNoSubjectOrBody", message : "subject or body missing in url"}; 
     }
 
     // raise error if we have no mailto
@@ -149,7 +149,7 @@ app.use("/", (req, res) => {
 
     // raise error if the mailto is not authorised
     if ( config.authorisedRecipients.length > 0 && config.authorisedRecipients.indexOf(params.mailto) == -1) {
-      throw {name : "ErrMailToNotAuthorised", message : "mailto contains an non-authorised address: " + params.mailto}; 
+      throw {name : "ErrMailToNotAuthorised", message : "mailto contains a non-authorised address: " + params.mailto}; 
     }
 
     // create the sendmail command
