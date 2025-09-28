@@ -240,7 +240,7 @@ Useful symbols:
 
   * ss seconds, 00 to 59 (or just s = 0 to 59)
   * mm minutes, 00 to 59 (or just m = 0 to 59)
-  * HH hour, 00 to 23 (or just or H = 0 to 23)
+  * HH hour, 00 to 23 (or just H = 0 to 23)
   * dd day, 01 to 31 (or just d = 1 to 31)
   * ee weekday, 01 to 07 (or just e = 1 to 7)
   * ww week, 01 to 52 (or just w = 1 to 52)
