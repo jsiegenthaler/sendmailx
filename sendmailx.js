@@ -8,6 +8,7 @@ const stdio = require("stdio"); // https://github.com/sgmonda/stdio
 
 // for handling the json config file
 const fs = require("fs");
+const path = require('path');
 
 // for formatting dates
 const fns = require("date-fns");
@@ -52,7 +53,8 @@ console.log("%s v%s", packagejson.name, packagejson.version);
 // config validator in an error handler
 try {
   // read the config file and validate it
-  let rawdata = fs.readFileSync("config.json"); // local variable
+  const configPath = path.join(__dirname, "config.json");
+  let rawdata = fs.readFileSync(configPath); // local variable
   var config = JSON.parse(rawdata); // global variable
   validateConfig(config); //validate file
 
