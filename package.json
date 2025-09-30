@@ -1,6 +1,6 @@
 {
   "name": "sendmailx",
-  "version": "0.0.1-beta.4",
+  "version": "0.0.1-beta.5",
   "description": "A simple API that executes a sendmail command from an http GET request",
   "main": "sendmailx.js",
   "scripts": {
