@@ -125,7 +125,7 @@ $ pm2 save
 Managing sendmailx in pm2 is straightforward:
 ```
 $ pm2 status
-$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js.js -- -i 192.168.0.101 -u UBxWZChHseyjeFwAkwgbdQ08x9XASWpanZZVg-mj -p 3000
+$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js
 $ pm2 save
 $ pm2 stop sendmailx
 $ pm2 restart sendmailx
