@@ -111,7 +111,7 @@ $ pm2 startup
 
 To start sendmailx with pm2, and have it daemonized, monitored and kept alive forever:
 ```
-$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js -- -i 192.168.0.101 -u UBxWZChHseyjeFwAkwgbdQ08x9XASWpanZZVg-mj -p 3000
+$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js
 ```
 Check that sendmailx has started:
 ```
