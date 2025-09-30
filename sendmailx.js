@@ -155,21 +155,20 @@ app.use("/", (req, res) => {
     }
 
     // create the sendmail command
-    var cmd = 'echo -e \'';
+    var cmd = 'echo "';
     if (params.subject) {
       cmd = cmd + "Subject:" + params.subject;
     } // add subject if present (optional)
     if (params.subject && params.body) {
-      cmd = cmd + "\n \n";
+      cmd = cmd + "\\\\n\\\\n"; // must escape the backslash 
     } // add 2xCR if subject and body present as we have no headers (optional)
     if (params.body) {
       cmd = cmd + params.body;
     } // add body if present (optional)
     if (params.sig) {
-      cmd = cmd + "\n\n--\n" + params.sig;
+      cmd = cmd + "\\\\n\\\\n--\\\\n" + params.sig;
     } // add sig if present (optional) separated by --
-    cmd = cmd + '\' | sendmail ' + params.mailto;
-    console.log("executing cmd:", cmd);
+    cmd = cmd + '" | sendmail ' + params.mailto;
     console.log("executing cmd:", JSON.stringify(cmd));
 
     // execute the sendmail command
