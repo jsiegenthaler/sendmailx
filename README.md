@@ -30,16 +30,7 @@ sendmailx is an extension to the linux sendmail command. You need to have sendma
 See this [useful guide to setting up sendmail on a raspberry pi](https://medium.com/swlh/setting-up-gmail-and-other-email-on-a-raspberry-pi-6f7e3ad3d0e).
 
 # Config
-The config for sendmailx is done using the options and arguments in the command line. the 
-* auth - auth mode, either totp or none
-* authorisedRecipients - a comma separated list of emails which sendmailx is allowed to send to
-* port - the port number assigned to sendmailx
-* dateFormatString - the seed format string to generate the TOTP
-* pin - a secret PIN code also used to generate the TOTP
-* validityPeriod - the length of time in seconds that the TOTP remians valid
-
-Full details of the TOTP are descripbed in the Security section of this readme file.
-
+The config for sendmailx is done using the options and arguments in the command line. See [Starting sendmailx](#starting-sendmailx) below.
 
 # Installing sendmailx
 I run sendmailx on my raspberry pi. To install the latest version with NPM:
@@ -61,7 +52,7 @@ $ npm update sendmailx
 ```
 
 
-# Starting sendmailx
+# Starting sendmailx <a name="starting-sendmailx"></a>
 The following examples assume you have sendmailx in a folder that your system can find. Update your PATH variables if needed. 
 
 To see the help text, start sendmailx with the -h or --help option as follows:
@@ -74,10 +65,11 @@ sendmailx shows the following response:
 USAGE: node sendmailx.js [OPTION1] [OPTION2]... arg1 arg2...
 The following options are supported:
   -a, --auth <ARG1>                     auth mode ("totp" by default)
-  -p, --port <ARG1>                     port number to listen on ("3100" by default)
+  -e, --authorisedRecipients <ARG1>     authorised recipients as a comma-separated list of email addresses
   -f, --dateFormatString <ARG1>         date format string used to create totp (required) ("yyHHddssmmMM" by default)
-  -i, --pin <ARG1>                      pin code (required)
-  -e, --authorisedRecipients <ARG1>     authorised recipients as a comma-separated list of emails
+  -i, --pin <ARG1>                      4 to 6 digit numeric pin code (required)
+  -p, --port <ARG1>                     port number to listen on ("3100" by default)
+  -v, --validityPeriod <ARG1>           the amount of time (in seconds) that the one time passcode is valid for ("10" by default)
 ```  
 Note that options can be entered in any order.
 
@@ -127,7 +119,7 @@ For more information about pm2, see https://github.com/Unitech/pm2
 
 
 ## Using sendmailx
-### Testing from a PC without using autentication
+### Testing from a PC without using authentication
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it with the -a none option (no authentication), example:
 ```
@@ -254,7 +246,7 @@ The PIN code is a 4 to 6 digit numeric code which is used together with the date
 * Use a PIN code that does not start with 0, and contains 4 to 6 different digits.
 
 ## Setting the Authorised Email List
-sendmailx can be configured to only send emails to email addresses set in the authorisedEmails parameter. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
+sendmailx can be configured to only send emails to email addresses set in the authorisedEmails option. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
-If authorisedEmails is empty, then sendmailx will send to any email in the http GET command.
+If authorisedEmails is empty, then sendmailx will send to any email entered in the mailto parameter of  the http GET command.
 
