@@ -30,25 +30,13 @@ sendmailx is an extension to the linux sendmail command. You need to have sendma
 See this [useful guide to setting up sendmail on a raspberry pi](https://medium.com/swlh/setting-up-gmail-and-other-email-on-a-raspberry-pi-6f7e3ad3d0e).
 
 # Config
-The config for sendmailx is held in the config.json file, which must be in the same folder as sendmailx.js. An example config is provided when you install sendmailx, as shown below:
-```
-{
-	"totp": {
-		"dateFormatString": "mmhhMMssyydd",
-		"pin": "7385",
-		"validityPeriod": 5
-	},
-	"authorisedEmails": [
-		"example@anywhere.com",
-		"another.example@gmailx.com"
-	]
-}
-```
-* totp.dateFormatString - the seed format string to generate the TOTP
-* totp.pin - a secret PIN code also used to generate the TOTP
-* totp.validityPeriod - the length of time in seconds that the TOTP remians valid
-
-* authorisedEmails - a comma-separated list of authorised email addresses that sendmailx is allowed to send emails to. The list can be stored over multiple lines in the json file. To allow sending of emails to anyone, leave the authorisedEmails empty.
+The config for sendmailx is done using the options and arguments in the command line. the 
+* auth - auth mode, either totp or none
+* authorisedRecipients - a comma separated list of emails which sendmailx is allowed to send to
+* port - the port number assigned to sendmailx
+* dateFormatString - the seed format string to generate the TOTP
+* pin - a secret PIN code also used to generate the TOTP
+* validityPeriod - the length of time in seconds that the TOTP remians valid
 
 Full details of the TOTP are descripbed in the Security section of this readme file.
 
@@ -76,7 +64,7 @@ $ npm update sendmailx
 # Starting sendmailx
 The following examples assume you have sendmailx in a folder that your system can find. Update your PATH variables if needed. 
 
-To see the help text, start sendmailx with -h or --help arguments as follows:
+To see the help text, start sendmailx with the -h or --help option as follows:
 ```
 $ node /home/pi/node_modules/sendmailx/sendmailx.js -h
 ```
