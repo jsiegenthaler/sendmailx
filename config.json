@@ -1,8 +1,0 @@
-{
-	"totp": {
-		"dateFormatString": "mHsyyddM",
-		"pin": "7385",
-		"validityPeriod": 10
-	},
-	"authorisedRecipients": []
-}
