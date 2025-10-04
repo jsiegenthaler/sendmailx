@@ -92,9 +92,9 @@ Ideally sendmailx will run all the time. You need a tool to start sendmailx when
 To startup pm2 running so it auto-starts on pi reboot, use this command and follow the instructions from pm2:
 $ pm2 startup
 
-To start sendmailx with pm2, and have it daemonized, monitored and kept alive forever:
+To start sendmailx with pm2, and have it daemonized, monitored and kept alive forever (note that you need a -- before adding the sendmailx options):
 ```
-$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js
+$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js -- -i 1234
 ```
 Check that sendmailx has started:
 ```
