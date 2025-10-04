@@ -73,18 +73,22 @@ The following options are supported:
 ```  
 Note that options can be entered in any order.
 
-Example to run sendmailx on a raspberry pi, default port `3100`:
+Example to run sendmailx on a raspberry pi, using pin 1234, and all other options left at default:
 ```
-$ node /home/pi/node_modules/sendmailx/sendmailx.js
+$ node /home/pi/node_modules/sendmailx/sendmailx.js -i 1234
 ```
-The same again, but using port `1234`:
+The same again, but using port `3525`:
 ```
-$ node /home/pi/node_modules/sendmailx/sendmailx.js -p 1234 
+$ node /home/pi/node_modules/sendmailx/sendmailx.js -i 1234 -p 3525 
 ```
-A successful start of sendmailx (using the above command to specify port 1234) will show:
+The same again, but restricitng to email address example999@gmail.com:
+```
+$ node /home/pi/node_modules/sendmailx/sendmailx.js -i 1234 -p 3525 -e example999@gmail.com
+```
+A successful start of sendmailx (using the above command to specify port 3525) will show:
 ```
 sendmailx v1.0.0
-listening on port 1234
+listening on port 3525
 ```
 # Starting sendmailx as a Service
 Ideally sendmailx will run all the time. You need a tool to start sendmailx when your system restarts. On my raspberry pi, I use [pm2](https://github.com/Unitech/pm2) (Process Management Module).
@@ -108,7 +112,7 @@ $ pm2 save
 Managing sendmailx in pm2 is straightforward:
 ```
 $ pm2 status
-$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js
+$ pm2 start /home/pi/node_modules/sendmailx/sendmailx.js -- -i 1234
 $ pm2 save
 $ pm2 stop sendmailx
 $ pm2 restart sendmailx
@@ -121,7 +125,7 @@ For more information about pm2, see https://github.com/Unitech/pm2
 ## Using sendmailx
 ### Testing from a PC without using authentication
 
-1. Ensure sendmailx is installed on your raspberry pi, and start it with the -a none option (no authentication), example:
+1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the -a none option (no authentication), example:
 ```
 sendmailx.js -a none
 ```
