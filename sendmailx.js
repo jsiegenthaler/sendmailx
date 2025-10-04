@@ -6,10 +6,6 @@ const packagejson = require("./package.json");
 // for handling the startup parameters
 const stdio = require("stdio"); // https://github.com/sgmonda/stdio
 
-// for handling the json config file
-const fs = require("fs");
-const path = require('path');
-
 // for formatting dates
 const fns = require("date-fns");
 
@@ -34,12 +30,40 @@ var options = stdio.getopt({
     required: false,
     default: "totp",
   },
+  authorisedRecipients: {
+    key: "e",
+    description: "authorised recipients as a comma-separated list of email addresses",
+    args: 1,
+    required: false,
+    default: ''
+  },
+  dateFormatString: {
+    key: "f",
+    description: "date format string used to create totp",
+    args: 1,
+    required: true,
+    default: "yyHHddssmmMM",
+  },
+  pin: {
+    key: "i",
+    description: "4 to 6 digit numeric pin code",
+    args: 1,
+    required: true
+    //default: 1248,
+  },
   port: {
     key: "p",
     description: "port number to listen on",
     args: 1,
     required: false,
     default: 3100,
+  },
+  validityPeriod: {
+    key: "v",
+    description: "the amount of time (in seconds) that the one time passcode is valid for",
+    args: 1,
+    required: false,
+    default: 10,
   },
 });
 var errPrefix = ""; // global variable
@@ -50,13 +74,10 @@ console.log("%s v%s", packagejson.name, packagejson.version);
 //console.log("auth:", options.auth);
 
 
-// config validator in an error handler
+// options validator in an error handler
 try {
-  // read the config file and validate it
-  const configPath = path.join(__dirname, "config.json");
-  let rawdata = fs.readFileSync(configPath); // local variable
-  var config = JSON.parse(rawdata); // global variable
-  validateConfig(config); //validate file
+  // read the config optiond and validate
+  validateConfig(options); //validate the config options
 
   //+++++ end of startup code +++++
 } catch (err) {
@@ -133,7 +154,7 @@ app.use("/", (req, res) => {
     
 
     // raise error if token invalid (unauthorised)
-    if (!isTokenValid(options.auth, params.token, config.totp)) {
+    if (!isTokenValid(options.auth, params.token, options)) {
       throw {name : "ErrAuthFail", message : "unauthorised"}; 
     }
 
@@ -220,7 +241,7 @@ function urlParamsToJson(url) {
 
 // ++++ decode a totp token and check its validity ++++
 // return json from url parameter name=value pairs
-function isTokenValid(auth, token, totp) {
+function isTokenValid(auth, token, options) {
   /*
   console.log("auth", auth);
   console.log("token", token);
@@ -244,54 +265,55 @@ function isTokenValid(auth, token, totp) {
   }
 
   // decode the token
-  var decodedtoken = Number(token) / Number(totp.pin);
+  var decodedtoken = Number(token) / Number(options.pin);
   /*
   console.log("token", token);
-  console.log("pin", totp.pin);
+  console.log("pin", options.pin);
+  console.log("dateFormatString", options.dateFormatString);
   console.log("decodedtoken", decodedtoken);
   */
 
-  // formatted date string acording to the totp.dateFormatString
+  // formatted date string acording to the options.dateFormatString
   // https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md
   // https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 
-  //console.log("dateFormatString", totp.dateFormatString); // dateFormatString
+  //console.log("dateFormatString", options.dateFormatString); // dateFormatString
   //console.log("curdatetokenformatted", curdatetokenformatted); // current date in token format
   //console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
   // get current date in same dateFormatString
   let dt = new Date() // date in utc
   dt = dt.setMilliseconds(0); // remove ms
-  let df = fns.format(dt, totp.dateFormatString); // date formated to the token format
+  let df = fns.format(dt, options.dateFormatString); // date formated to the token format
   //console.log("encoded date", df)
   let curntdate = fns.parse(
       df,
-      totp.dateFormatString,
+      options.dateFormatString,
       new Date()
     ); // formatted date parsed back to normal date
   /*
   console.log("dt", dt.toLocaleString()); // current date and time
-  console.log("dateFormatString", totp.dateFormatString); // dateFormatString
+  console.log("dateFormatString", options.dateFormatString); // dateFormatString
   console.log("df", df); // current date in token format
   */
 
-  // parse token back to date using totp.dateFormatString
+  // parse token back to date using options.dateFormatString
   // any missing date components fallback to smallest valid values
   let tokendate = fns.parse(
     decodedtoken.toString(),
-    totp.dateFormatString,
+    options.dateFormatString,
     new Date()
   );
-  let maxtndate = new Date(tokendate.getTime() + totp.validityPeriod * 1000); // max token date, validityPeriod is in seconds, need milliseconds
+  let maxtndate = new Date(tokendate.getTime() + options.validityPeriod * 1000); // max token date, validityPeriod is in seconds, need milliseconds
   /*
   console.log("curntdate", curntdate.toLocaleString()); // the current date, decoded back from token format, as a date
   console.log("tokendate", tokendate.toLocaleString());
-  console.log("validityPeriod", totp.validityPeriod);
+  console.log("validityPeriod", options.validityPeriod);
   console.log("maxtndate", maxtndate.toLocaleString());
   console.log("maxtndate - curntdate in ms", maxtndate - curntdate);
   */
 
   // token is valid if the diff between maxtndate and curntdate is less than validityPeriod (in secs) (or validityPeriod*1000 ms)
-  if ( (maxtndate - curntdate) <= (totp.validityPeriod * 1000) ) {
+  if ( (maxtndate - curntdate) <= (options.validityPeriod * 1000) ) {
     //console.log("token valid");
     return true;
   } else {
@@ -315,71 +337,72 @@ server.listen(options.port, () => {
 // ++++ validate config.json file ++++
 function validateConfig(config) {
   /*
-  console.log('config:' + config);
-  console.log('config.totp:' + config.totp);
+  console.log(config);
+  console.log('config.dateFormatString:' + config.dateFormatString);
   console.log('config.authorisedRecipients:' + config.authorisedRecipients);
   */
 
-  let totp = config.totp; // local variable in this function only
-
-  errPrefix = "validating config file";
+  errPrefix = "validating options";
   // check we have some minimum security in the settings
   // dateFormatString must include s to ensure fast token rollover
-  if (!totp.dateFormatString.includes("s")) {
+  if (!config.dateFormatString.includes("s")) {
     throw {name : "SeedMissingS", message : "dateFormatString must contain s or ss"}; 
   }
   // dateFormatString must include m to ensure fast token rollover
-  if (!totp.dateFormatString.includes("m")) {
+  if (!config.dateFormatString.includes("m")) {
     throw {name : "SeedMissingM", message : "dateFormatString must contain m or mm"}; 
   }
   // dateFormatString first symbol must be single symbol so as not to generate a leading 0
   // check if first and second characters are different
-  if (totp.dateFormatString.substring(0, 1) == totp.dateFormatString.substring(1, 2)) {
+  if (config.dateFormatString.substring(0, 2) != "yy" && config.dateFormatString.substring(0, 1) == config.dateFormatString.substring(1, 2)) {
     throw {name : "SeedInvalidFirstchar", message : "dateFormatString must start with a single symbol"}; 
   }
 
   // dateFormatString must be 8 to 12 characters long
-  if (!(totp.dateFormatString.length >= 8 && totp.pin.toString().length <= 12)) {
+  if (!(config.dateFormatString.length >= 8 && config.pin.toString().length <= 12)) {
     throw {name : "SeedLenInvalid", message : "dateFormatString must be between 8 and 12 characters long"}; 
   }
   // check if dateFormatString is valid by doing a test encode and decode of the date
   // throw an error if not allowed or if any difference > 0 seconds occurs
-  let dt = new Date() // date in utc
-  //console.log("encoding date:",dt)
-  dt = dt.setMilliseconds(0); // remove ms
-  //console.log("encoding and decoding using", totp.dateFormatString, "(ignoring milliseconds)")
-  let df = fns.format(dt, totp.dateFormatString); // date formated to the token format
+  var dt = new Date() // date in utc
+  //console.log("encoding and decoding using", options.dateFormatString, "(ignoring milliseconds)")
+  let df = fns.format(dt, config.dateFormatString); // date formated to the token format
   //console.log("encoded date", df)
+  // parse the formatted date back to normal date, this tests the dateFormatString
   let ddt = fns.parse(
       df,
-      totp.dateFormatString,
+      config.dateFormatString,
       new Date()
-    ); // formatted date parsed back to normal date, this tests the dateFormatString
+    ); 
   //console.log("decoded date: ",ddt) // the result
-  //console.log("datetime difference in ms:",ddt - dt) // the difference in ms
-  if (ddt - dt == 0) {
+  const datediff = Math.abs(Math.ceil((ddt - dt)/1000)); // diff in seconds, rounded up, always positive
+  if (datediff == 0) {
     //console.log("dateFormatString OK");
   } else {
-    throw {name : "SeedNotValid", message : "dateFormatString not suitable: "+ totp.dateFormatString}; 
+    console.log("encoding and decoding using", options.dateFormatString, "(ignoring milliseconds)")
+    console.log("encoded date :", df)
+    console.log("decoded date :", ddt) // the result
+    console.log("date diff:", datediff) // diff seconds, rounded up
+    throw {name : "SeedNotValid", message : "dateFormatString not suitable: "+ config.dateFormatString}; 
   }
 
 
   // pin checks
 
   // PIN must be 4 to 6 characters long
-  if (!(totp.pin.toString().length >= 4 && totp.pin.toString().length <= 6)) {
+  if (!(config.pin.toString().length >= 4 && config.pin.toString().length <= 6)) {
     throw {name : "ErrPinLenInvalid", message : "pin must be between 4 and 6 characters long"}; 
   }
   // PIN must not start with 0 (otherwise the number checks fail, and the multiplication effect is too small)
-  if ((totp.pin.toString().startsWith("0"))) {
+  if ((config.pin.toString().startsWith("0"))) {
     throw {name : "ErrPinFirstDigitZero", message : "pin must not begin with 0"}; 
   }
   // PIN must be numeric and an integer
-  if (isNaN(Number(totp.pin)) ) {
+  if (isNaN(Number(config.pin)) ) {
     throw {name : "ErrPinNaN", message : "pin must be a 4 to 6 digit whole number"}; 
   }
   // PIN must not be too simple and must not be disivible by 10
-  if (generateEasyPins().includes(totp.pin.toString()) || ((Number(totp.pin) % 10) == 0)) {
+  if (generateEasyPins().includes(config.pin.toString()) || ((Number(config.pin) % 10) == 0)) {
     throw {name : "ErrPinTooSimple", message : "pin too simple"}; 
   }
   //console.log("pin OK"); // if we got here, pin is ok
