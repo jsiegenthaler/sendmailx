@@ -85,8 +85,11 @@ sendmailx shows the following response:
 ```
 USAGE: node sendmailx.js [OPTION1] [OPTION2]... arg1 arg2...
 The following options are supported:
-  -a, --auth <ARG1>             auth method to use ("totp" by default)
-  -p, --port <ARG1>             port number to listen on ("3100" by default)
+  -a, --auth <ARG1>                     auth mode ("totp" by default)
+  -p, --port <ARG1>                     port number to listen on ("3100" by default)
+  -f, --dateFormatString <ARG1>         date format string used to create totp (required) ("yyHHddssmmMM" by default)
+  -i, --pin <ARG1>                      pin code (required)
+  -e, --authorisedRecipients <ARG1>     authorised recipients as a comma-separated list of emails
 ```  
 Note that options can be entered in any order.
 
@@ -221,7 +224,7 @@ To provide for security on your local network, and to prevent abuse of the sendm
 The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in validityPeriod (seconds) in the config.json.
 
 ### dateFormatString
-The dateFormatString (in config.json) is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the TOTP code generation.
+The dateFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the TOTP code generation.
 
 Example:
 For a date ot 27.09.2025 13:29:30, a dateFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
@@ -229,10 +232,10 @@ As can be seen in the example, the number of 20250927132730 can be readily ident
 To make identification of the date and time more dificult, it is recommended to set the dateFormatString to a combination that does not folllow the normal date time sequence.
 
 Examples:
-* Normal datetime sequence: yyyyMMddhhmmss = 20250927132930 (do not use, easily guessable)
-* Example datetime sequence 1: ssddqqyymmMMHH = 30270325290913 
-* Example datetime sequence 2: mHHMMssyydd = 291309302527
-* Example datetime sequence 3: mhsyyddM = 29133025279
+* Normal datetime sequence: yyyyMMddHHmmss = 20250927132930 (do not use, easily guessable)
+* Example datetime sequence 1: yyHHddssmmMM = 251327302909 (default)
+* Example datetime sequence 2: mHHMMssyydd = 
+* Example datetime sequence 3: mhsyyddM = 
 
 
 Notes
@@ -254,16 +257,16 @@ The dateFormatString is checked when sendmailx starts, and an error will be disp
 
 The more complex the dateFormatString, the more secure the TOTP.
 
-The seed for the TOTP is used together with the PIN code to produce a one-time passcode, vhich is valid for the defined validityPeriod  (in config.json, in seconds).
+The dateFormatString is used together with the PIN code to produce a time-limited one-time passcode (TOTP), which is valid for the defined validityPeriod  (in seconds).
 
 ### PIN code
 The PIN code is a 4 to 6 digit numeric code which is used together with the dateFormatString to generate the TOTP.
 * Do not share the PIN code with anyone.
 * PIN codes that are too simple will be rejected by sendmailx.
-* Use a PIN code not staring with 0, containing 4 to 6 different digits.
+* Use a PIN code that does not start with 0, and contains 4 to 6 different digits.
 
 ## Setting the Authorised Email List
-sendmailx can be configured to only send emails to email addresses stored in the authorisedEmails section of the config.json file. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
+sendmailx can be configured to only send emails to email addresses set in the authorisedEmails parameter. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
 If authorisedEmails is empty, then sendmailx will send to any email in the http GET command.
 
