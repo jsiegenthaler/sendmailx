@@ -120,6 +120,16 @@ For more information about pm2, see https://github.com/Unitech/pm2
 
 
 # Using sendmailx
+
+## Supported URL parameters
+the following url parameters are supported:
+
+| Parameter | Example | Notes |
+| to | to=recipient@domain.com | Mandatory, the address of the email recipient. Multiple addresses can be used, separated by comma |
+| cc | cc=carboncopy@domain.com | Optional. A list of carbon-copy (cc) email recipients, separated by comma |
+| bcc | bcc=blindcarboncopy@domain.com | Optional. A list of blind-carbon-copy (cc) email recipients, separated by comma |
+
+
 ### Testing from a PC without using authentication
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the -a none option (no authentication), example:
