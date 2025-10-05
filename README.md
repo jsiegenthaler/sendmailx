@@ -122,13 +122,24 @@ For more information about pm2, see https://github.com/Unitech/pm2
 # Using sendmailx
 
 ## Supported URL parameters
-the following url parameters are supported:
+
+The rul is constructed as follows:
+
+http:192.168.0.100:3100/?subject=Test&body=This%20is%20the%20body&to=recipient@domain.com&cc=carboncopy@domain.com&bcc=blindcarboncopy@domain.com&token=12345678
+
+The parameters can be entered in any order.
+The parameter keywords (subject,body,to,cc,bcc,token) must all be in lower case.
+
+The following url parameters are supported:
 
 | Parameter | Example | Notes |
 | :-------: | :----: | :----: |
 | to | to=recipient@domain.com | Mandatory, the address of the email recipient. Multiple addresses can be used, separated by comma |
 | cc | cc=carboncopy@domain.com | Optional. A list of carbon-copy (cc) email recipients, separated by comma |
 | bcc | bcc=blindcarboncopy@domain.com | Optional. A list of blind-carbon-copy (cc) email recipients, separated by comma |
+| subject | subject=The email subject | Optional. The email subject. Must be url encoded. |
+| body | The email nody | Optional. The email body. Must be url encoded. |
+| token | The TOTP token | Optional. The numerical authentication token. |
 
 
 ### Testing from a PC without using authentication
