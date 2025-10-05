@@ -52,7 +52,7 @@ $ npm update sendmailx
 # Starting sendmailx <a name="starting-sendmailx"></a>
 The following examples assume you have sendmailx in a folder that your system can find. Update your PATH variables if needed. 
 
-To see the help text, start sendmailx with the -h or --help option as follows:
+To see the help text, start sendmailx with the `-h` or `--help` option as follows:
 ```
 $ node /home/pi/node_modules/sendmailx/sendmailx.js -h
 ```
