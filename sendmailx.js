@@ -98,8 +98,8 @@ server.on("error", function (err) {
 // handle
 // ?subject=<subject>&body=<bodytext>
 // examples:
-// GET no auth: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=myemail@gmail.com
-// GET totp token: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&mailto=myemail@gmail.com
+// GET no auth: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&to=myemail@gmail.com
+// GET totp token: http://localhost:3100/?subject=Test%20mail&body=Hey%20how%20cool&to=myemail@gmail.com
 // GET: http://192.168.0.100?subject=Test%20mail&body=Hey%20how%20cool
 app.use("/", (req, res) => {
   const reqUrl = req.url;
@@ -137,13 +137,16 @@ app.use("/", (req, res) => {
     }
 
     // convert url params to a json object
+    // note Case Sensisitve!
     const params = urlParamsToJson(req.url);
 
     // debug
     /*
     console.log("params:", params);
     console.log("token:", params.token);
-    console.log("mailto:", params.mailto);
+    console.log("to:", params.to);
+    console.log("cc:", params.cc);
+    console.log("bcc:", params.bcc);
     console.log("subject:", params.subject);
     console.log("body:", params.body);
     console.log("sig:", params.sig);
@@ -164,56 +167,126 @@ app.use("/", (req, res) => {
       };
     }
 
-    // raise error if we have no mailto
-    if (!params.mailto) {
-      throw { name: "ErrNoMailto", message: "mailto missing in url" };
+    // raise error if we have no to
+    if (!params.to) {
+      throw { name: "ErrNoMailto", message: "to missing in url" };
     }
 
-    // raise error if the mailto is not authorised
-    // first make an array
+    // raise error if the to,cc or bcc is not authorised
+    // first make an array of the authorisedRecipients
     var authorisedRecipients = [];
     if (options.authorisedRecipients.length > 0) {
       authorisedRecipients = options.authorisedRecipients.split(",");
     }
     // test the array emails
-    // the mailto can contain multiple emails, split by comma and loop the array
-    let mailtos = [];
-    if (params.mailto.length > 0) {
-      mailtos = params.mailto.split(",");
-    }
-    // loop each mailto:
-    for (let i = 0; i < mailtos.length; i++) {
-      //console.log("checking mailtos[i]:", mailtos[i])
-      //console.log("authorisedRecipients:", authorisedRecipients)
+    // the mail to can contain multiple emails, split by comma and loop the array
+    let emails = [];
+    emails = (params.to || "").split(",");
+    // loop each email:
+    for (let i = 0; i < emails.length; i++) {
+      console.log("checking emails[i]:", emails[i])
+      console.log("authorisedRecipients:", authorisedRecipients)
       if (
-        authorisedRecipients.indexOf(mailtos[i]) == -1
+        authorisedRecipients.length > 0 &&
+        authorisedRecipients.indexOf(emails[i]) == -1
       ) {
-        console.log("mailto not authorised:", mailtos[i])
+        console.log("mail to not authorised:", emails[i])
         throw {
           name: "ErrMailToNotAuthorised",
-          message: "mailto contains a non-authorised address: " + mailtos[i]
+          message: "mail to contains a non-authorised address: " + emails[i]
         };
       } else {
-         console.log("mailto authorised:", mailtos[i])
+         console.log("mail to authorised:", emails[i])
       }
     }
+    // the optional mail cc can contain multiple emails, split by comma and loop the array
+    console.log("params.cc",params.cc)
+    emails = []
+    if (params.cc) {
+      emails = (params.cc || "").split(",");
+    }
+    console.log("cc emails[]",emails)
+    // loop each email:
+    for (let i = 0; i < emails.length; i++) {
+      console.log("checking emails[i]:", emails[i])
+      console.log("authorisedRecipients:", authorisedRecipients)
+      if (
+        authorisedRecipients.length > 0 &&
+        authorisedRecipients.indexOf(emails[i]) == -1
+      ) {
+        console.log("mail cc not authorised:", emails[i])
+        throw {
+          name: "ErrMailCcNotAuthorised",
+          message: "mail cc contains a non-authorised address: " + emails[i]
+        };
+      } else {
+         console.log("mail cc authorised:", emails[i])
+      }
+    }
+    // the mail bcc can contain multiple emails, split by comma and loop the array
+    emails = []
+    if (params.bcc) {
+      emails = (params.bcc || "").split(",");
+    }
+    console.log("bcc emails[]",emails)
+    // loop each email:
+    for (let i = 0; i < emails.length; i++) {
+      console.log("checking emails[i]:", emails[i])
+      console.log("authorisedRecipients:", authorisedRecipients)
+      if (
+        authorisedRecipients.length > 0 &&
+        authorisedRecipients.indexOf(emails[i]) == -1
+      ) {
+        console.log("mail bcc not authorised:", emails[i])
+        throw {
+          name: "ErrMailBccNotAuthorised",
+          message: "mail bcc contains a non-authorised address: " + emails[i]
+        };
+      } else {
+         console.log("mail bcc authorised:", emails[i])
+      }
+    }    
+
 
     // create the sendmail command
+    // good reference:
+    // https://jpsoft.com/help/sendmail.htm
+    // https://linux.die.net/man/8/sendmail.sendmail note the -t option
+    // https://www.rfc-editor.org/rfc/rfc5322#appendix-A  (the text mail format)
+    // echo -e translated \n to newlines
+    // but because we are using the exec to spawn a process, we do not use -e and we escape the \
+    // echo "To:someone@gmail.com\\nSubject:Test email\\nThis is a test email\\n" | sendmail -t 
+
     var cmd = 'echo "';
+    // add mailto (mandatory)
+    cmd = cmd + "To:" + params.to + "\\n";
+    
+    // add Cc if present (optional)
+    if (params.cc) {
+      cmd = cmd + "Cc:" + params.cc + "\\n";
+    }
+
+    // add Bcc if present (optional)
+    if (params.bcc) {
+      cmd = cmd + "Bcc:" + params.bcc + "\\n";
+    }
+
+    // add subject if present (optional)
     if (params.subject) {
-      cmd = cmd + "Subject:" + params.subject;
-    } // add subject if present (optional)
-    if (params.subject && params.body) {
-      cmd = cmd + "\\\\n\\\\n"; // must escape the backslash
-    } // add 2xCR if subject and body present as we have no headers (optional)
+      cmd = cmd + "Subject:" + params.subject + "\\n";
+    }
+
+    // add body if present (optional)
     if (params.body) {
-      cmd = cmd + params.body;
-    } // add body if present (optional)
-    if (params.sig) {
-      cmd = cmd + "\\\\n\\\\n--\\\\n" + params.sig;
-    } // add sig if present (optional) separated by --
-    cmd = cmd + '" | sendmail ' + params.mailto;
-    console.log("executing cmd:", JSON.stringify(cmd));
+      cmd = cmd + params.body + "\\n";
+    }
+
+    // form the pipe and command
+    cmd = cmd + '" | sendmail -t '; // -t reads fields from the input, allows for To:, Cc:, Bcc:, etc
+
+    // for debug
+    console.log("executing cmd:", cmd);
+    console.log("stringifed cmd:", JSON.stringify(cmd));
 
     // execute the sendmail command
     // https://stackabuse.com/executing-shell-commands-with-node-js/
