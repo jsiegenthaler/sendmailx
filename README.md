@@ -29,9 +29,6 @@ sendmailx is an extension to the linux sendmail command. You need to have sendma
 
 See this [useful guide to setting up sendmail on a raspberry pi](https://medium.com/swlh/setting-up-gmail-and-other-email-on-a-raspberry-pi-6f7e3ad3d0e).
 
-# Config
-The config for sendmailx is done using the options and arguments in the command line. See [Starting sendmailx](#starting-sendmailx) below.
-
 # Installing sendmailx
 I run sendmailx on my raspberry pi. To install the latest version with NPM:
 ```
@@ -122,7 +119,7 @@ $ pm2 describe sendmailx
 For more information about pm2, see https://github.com/Unitech/pm2
 
 
-## Using sendmailx
+# Using sendmailx
 ### Testing from a PC without using authentication
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the -a none option (no authentication), example:
