@@ -146,23 +146,23 @@ The following url parameters are supported:
 | token | token=12345678 | The numerical authentication token. Required unless sendmailx is started with the -a none option |
 
 
-## Testing from a PC without using authentication
+## Testing from a PC (without using Authentication)
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the `-a none` option (no authentication), and any pin code, example (adapt the path as required):
 ```
 node /home/pi/node_modules/sendmailx/sendmailx.js -a none -i 1248
 ```
 
-2. Copy the following url, and enter the ip address of your raspberry pi (instead of 192.168.0.1) in the url. Note that at this stage we have not configured any authentication.
+2. Copy the following url, and enter the ip address of your raspberry pi (instead of 192.168.0.100) in the url. Note that at this stage we have not configured any authentication.
 ```
-http://192.168.0.1:3100/?subject=Test&body=Hello&to=youremail@address.com
+http://192.168.0.100:3100/?subject=Test&body=Hello&to=youremail@address.com
 ```
 
 3. Paste the updated url into your browser and hit Enter
 
 4. You should receive the following response:
 ```
-{"success":true,"cmd":"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"}
+{"success":true,"cmd":"echo \"To:youremail@address.com\\nSubject:Test\\nHello\\n\" | sendmail -t "}
 ```
 This is correct as at this stage no token generation is configured
 
@@ -173,7 +173,7 @@ If you started with default authentication, and no token was supplied, you will 
 
 
 
-## Testing from Apple HomeKit
+## Testing from Apple HomeKit (using Authentication)
 Set up an automation in Apple HomeKit with the following steps:
 
 #### Step 1: Date
@@ -195,7 +195,9 @@ Tip: run the automation at this point and confirm that a number is generated. Th
 
 #### Step 4: Text
 * Enter the url in this text field, example:
-http://192.168.0.1:3100?subject=Test&body=Hello&to=youremail@address.com&token=Calculation_Result
+http://192.168.0.100:3100?subject=Test&body=Hello&to=youremail@address.com&token=Calculation_Result
+
+Replace the ip address with the ip address of your raspberry pi.
 
 Note that Calculation_Result is the result from the Calculation step.
 
@@ -211,7 +213,7 @@ Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will res
 ```
 {
   "success" : true,
-  "cmd" : "cmd: <>"echo \"TO:youremail@address.com\nSubject:Test\nHello\" | sendmail -t"
+  "cmd" : "cmd: "echo \"To:youremail@address.com\nSubject:Test\nHello\" | sendmail -t"
 }
 ```
 
