@@ -63,10 +63,10 @@ USAGE: node sendmailx.js [OPTION1] [OPTION2]... arg1 arg2...
 The following options are supported:
   -a, --auth <ARG1>                     auth mode ("totp" by default)
   -e, --authorisedRecipients <ARG1>     authorised recipients as a comma-separated list of email addresses
-  -f, --dateFormatString <ARG1>         date format string used to create totp (required) ("yyHHddssmmMM" by default)
+  -f, --dateFormatString <ARG1>         date format string used to create token (required) ("yyHHddssmmMM" by default)
   -i, --pin <ARG1>                      4 to 6 digit numeric pin code (required)
   -p, --port <ARG1>                     port number to listen on ("3100" by default)
-  -v, --validityPeriod <ARG1>           the amount of time (in seconds) that the one time passcode is valid for ("10" by default)
+  -v, --validityPeriod <ARG1>           the amount of time (in seconds) that the token is valid for ("10" by default)
 ```  
 Note that options can be entered in any order.
 
@@ -163,9 +163,9 @@ http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
 ```
 {"success":true,"cmd":"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"}
 ```
-This is correct as at this stage no TOTP is configured
+This is correct as at this stage no token generation is configured
 
-If you started with default authentication, and no TOTP code was supplied, you will see:
+If you started with default authentication, and no token was supplied, you will see:
 ```
 {"error":"ErrAuthFail: unauthorised"}
 ```
@@ -222,15 +222,24 @@ sendmailx listens on your local network and processes any GET command it receive
 
 To provide for security on your local network, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
 
+<<<<<<< Updated upstream
 * TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
 * Restricted Email List - sendmailx can be restricted to send emails only to addresses provided when in the sendmail authorisedRecipients option
 
 
 ## Setting a TOTP (Time-limited One Time Passcode)
 The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in sendmail option validityPeriod (seconds).
+=======
+* TOTP - a time limited one-time passcode (token) must be included with every request. If the token is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
+* Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-configured in the authorisedRecipients option
+
+
+## Setting a TOTP (Time-limited One Time Passcode)
+The TOTP token is generated using the current datetime and a secret pin code. The token is valid only for a short period of time, defined in the validityPeriod option (in seconds).
+>>>>>>> Stashed changes
 
 ### dateFormatString
-The dateFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the TOTP code generation.
+The dateFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the token code generation.
 
 Example:
 For a date ot 27.09.2025 13:29:30, a dateFormatString of yyyyMMddhhmmss produces a 14 digit number of 20250927132930.
@@ -261,15 +270,15 @@ Useful symbols:
 
 The dateFormatString is checked when sendmailx starts, and an error will be displayed if the dateFormatString contains any invalid combination.
 
-The more complex the dateFormatString, the more secure the TOTP.
+The more complex the dateFormatString, the more secure the token.
 
-The dateFormatString is used together with the PIN code to produce a time-limited one-time passcode (TOTP), which is valid for the defined validityPeriod  (in seconds).
+The dateFormatString is used together with the pin code to produce a time-limited one-time passcode (TOTP), also called a token, which is valid for the defined validityPeriod (in seconds).
 
 ### PIN code
-The PIN code is a 4 to 6 digit numeric code which is used together with the dateFormatString to generate the TOTP.
-* Do not share the PIN code with anyone.
-* PIN codes that are too simple will be rejected by sendmailx.
-* Use a PIN code that does not start with 0, and contains 4 to 6 different digits.
+The pin code is a 4 to 6 digit numeric code which is used together with the dateFormatString to generate the token.
+* Do not share the pin code with anyone.
+* Pin codes that are too simple will be rejected by sendmailx.
+* Use a pin code that does not start with 0, and contains 4 to 6 different digits.
 
 ## Setting the Authorised Recipients List
 sendmailx can be configured to only send emails to email addresses set in the authorisedRecipients option. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
