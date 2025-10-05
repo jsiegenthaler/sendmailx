@@ -136,13 +136,13 @@ The parameter keywords (subject,body,to,cc,bcc,token) must all be in lower case.
 The following url parameters are supported:
 
 | Parameter | Example | Notes |
-| :-------: | :----: | :----: |
+| :------- | :---- | :---- |
 | to | to=recipient@domain.com | The address of the email recipient. Multiple addresses can be used, separated by comma. Mandatory |
 | cc | cc=carboncopy@domain.com | A list of carbon-copy (cc) email recipients, separated by comma. Optional |
 | bcc | bcc=blindcarboncopy@domain.com | A list of blind-carbon-copy (cc) email recipients, separated by comma. Optional |
-| subject | subject=The email subject | The email subject. Must be url encoded. Optional |
-| body | The email nody | The email body. Must be url encoded. Optional |
-| token | The TOTP token | The numerical authentication token. Optional |
+| subject | subject=The%20email%20subject | The email subject. Must be url encoded. Optional |
+| body | body=The%20email%20body | The email body. Must be url encoded. Optional |
+| token | token=12345678 | The numerical authentication token. Required unless sendmailx is started with the -a none option |
 
 
 ## Testing from a PC without using authentication
