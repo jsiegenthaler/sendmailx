@@ -39,7 +39,7 @@ var options = stdio.getopt({
   },
   dateFormatString: {
     key: "f",
-    description: "date format string used to create totp",
+    description: "date format string used to create token",
     args: 1,
     required: true,
     default: "yyHHddssmmMM",
@@ -61,7 +61,7 @@ var options = stdio.getopt({
   validityPeriod: {
     key: "v",
     description:
-      "the amount of time (in seconds) that the one time passcode is valid for",
+      "the amount of time (in seconds) that the token is valid for",
     args: 1,
     required: false,
     default: 10,
