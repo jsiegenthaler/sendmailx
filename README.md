@@ -125,6 +125,7 @@ For more information about pm2, see https://github.com/Unitech/pm2
 the following url parameters are supported:
 
 | Parameter | Example | Notes |
+| :-------: | :----: | :----: |
 | to | to=recipient@domain.com | Mandatory, the address of the email recipient. Multiple addresses can be used, separated by comma |
 | cc | cc=carboncopy@domain.com | Optional. A list of carbon-copy (cc) email recipients, separated by comma |
 | bcc | bcc=blindcarboncopy@domain.com | Optional. A list of blind-carbon-copy (cc) email recipients, separated by comma |
