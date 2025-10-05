@@ -18,7 +18,6 @@ const server = http.createServer(app);
 // for executing the sendmail command
 const { exec } = require("child_process");
 
-
 // +++++ startup code +++++
 
 // get startup arguments
@@ -32,10 +31,11 @@ var options = stdio.getopt({
   },
   authorisedRecipients: {
     key: "e",
-    description: "authorised recipients as a comma-separated list of email addresses",
+    description:
+      "authorised recipients as a comma-separated list of email addresses",
     args: 1,
     required: false,
-    default: ''
+    default: "",
   },
   dateFormatString: {
     key: "f",
@@ -48,7 +48,7 @@ var options = stdio.getopt({
     key: "i",
     description: "4 to 6 digit numeric pin code",
     args: 1,
-    required: true
+    required: true,
     //default: 1248,
   },
   port: {
@@ -60,7 +60,8 @@ var options = stdio.getopt({
   },
   validityPeriod: {
     key: "v",
-    description: "the amount of time (in seconds) that the one time passcode is valid for",
+    description:
+      "the amount of time (in seconds) that the one time passcode is valid for",
     args: 1,
     required: false,
     default: 10,
@@ -73,7 +74,6 @@ var errPrefix = ""; // global variable
 console.log("%s v%s", packagejson.name, packagejson.version);
 //console.log("auth:", options.auth);
 
-
 // options validator in an error handler
 try {
   // read the config optiond and validate
@@ -82,23 +82,17 @@ try {
   //+++++ end of startup code +++++
 } catch (err) {
   // some error occured, handle it nicely
-  console.log("error:", errPrefix + ':', err.message || err);
+  console.log("error:", errPrefix + ":", err.message || err);
   return;
 }
 //+++++ end of main code block +++++
 
-
-
-
 // add an error handler event to the server
 server.on("error", function (err) {
   // some error occured, show it
-  console.log("caught some error in server.on")
+  console.log("caught some error in server.on");
   console.log("error:", err.code, err.syscall, err.address, err.port);
 });
-
-
-
 
 // main server got, runs on each http request
 // handle
@@ -131,12 +125,15 @@ app.use("/", (req, res) => {
 
     // raise error if we have no data
     if (urlPathParts.length > 1 && urlPathParts[1].length == 0) {
-      throw {name : "ErrNoParam", message : "no parameters supplied"}; 
+      throw { name: "ErrNoParam", message: "no parameters supplied" };
     }
 
     // raise error if we have no ?
     if (urlPathParts[1].indexOf("?") == -1) {
-      throw {name : "ErrNoQuestionMark", message : "? character not found in url"}; 
+      throw {
+        name: "ErrNoQuestionMark",
+        message: "? character not found in url",
+      };
     }
 
     // convert url params to a json object
@@ -151,28 +148,54 @@ app.use("/", (req, res) => {
     console.log("body:", params.body);
     console.log("sig:", params.sig);
     */
-    
 
     // raise error if token invalid (unauthorised)
     if (!isTokenValid(options.auth, params.token, options)) {
-      throw {name : "ErrAuthFail", message : "unauthorised"}; 
+      throw { name: "ErrAuthFail", message: "unauthorised" };
     }
 
     // parse parameters
 
     // raise error if we have no subject or no body
     if (!params.subject && !params.body) {
-      throw {name : "ErrNoSubjectOrBody", message : "subject or body missing in url"}; 
+      throw {
+        name: "ErrNoSubjectOrBody",
+        message: "subject or body missing in url",
+      };
     }
 
     // raise error if we have no mailto
     if (!params.mailto) {
-      throw {name : "ErrNoMailto", message : "mailto missing in url"}; 
+      throw { name: "ErrNoMailto", message: "mailto missing in url" };
     }
 
     // raise error if the mailto is not authorised
-    if ( config.authorisedRecipients.length > 0 && config.authorisedRecipients.indexOf(params.mailto) == -1) {
-      throw {name : "ErrMailToNotAuthorised", message : "mailto contains a non-authorised address: " + params.mailto}; 
+    // first make an array
+    var authorisedRecipients = [];
+    if (options.authorisedRecipients.length > 0) {
+      authorisedRecipients = options.authorisedRecipients.split(",");
+    }
+    // test the array emails
+    // the mailto can contain multiple emails, split by comma and loop the array
+    let mailtos = [];
+    if (params.mailto.length > 0) {
+      mailtos = params.mailto.split(",");
+    }
+    // loop each mailto:
+    for (let i = 0; i < mailtos.length; i++) {
+      //console.log("checking mailtos[i]:", mailtos[i])
+      //console.log("authorisedRecipients:", authorisedRecipients)
+      if (
+        authorisedRecipients.indexOf(mailtos[i]) == -1
+      ) {
+        console.log("mailto not authorised:", mailtos[i])
+        throw {
+          name: "ErrMailToNotAuthorised",
+          message: "mailto contains a non-authorised address: " + mailtos[i]
+        };
+      } else {
+         console.log("mailto authorised:", mailtos[i])
+      }
     }
 
     // create the sendmail command
@@ -181,7 +204,7 @@ app.use("/", (req, res) => {
       cmd = cmd + "Subject:" + params.subject;
     } // add subject if present (optional)
     if (params.subject && params.body) {
-      cmd = cmd + "\\\\n\\\\n"; // must escape the backslash 
+      cmd = cmd + "\\\\n\\\\n"; // must escape the backslash
     } // add 2xCR if subject and body present as we have no headers (optional)
     if (params.body) {
       cmd = cmd + params.body;
@@ -218,13 +241,11 @@ app.use("/", (req, res) => {
     // https://expressjs.com/en/guide/error-handling.html
     //console.log("caught some error in app.use")
     console.log(err);
-    const errText = err.name + ': ' + err.message;
+    const errText = err.name + ": " + err.message;
     console.log("error when parsing url:", errText);
     res.json({ error: errText });
   }
 });
-
-
 
 // ++++ create json from url parameter name=value pairs ++++
 function urlParamsToJson(url) {
@@ -236,8 +257,6 @@ function urlParamsToJson(url) {
   }, {});
   return jsonObj;
 }
-
-
 
 // ++++ decode a totp token and check its validity ++++
 // return json from url parameter name=value pairs
@@ -281,15 +300,11 @@ function isTokenValid(auth, token, options) {
   //console.log("curdatetokenformatted", curdatetokenformatted); // current date in token format
   //console.log("curdatetoken", curdatetoken.toLocaleString()); // the current date token, as a date
   // get current date in same dateFormatString
-  let dt = new Date() // date in utc
+  let dt = new Date(); // date in utc
   dt = dt.setMilliseconds(0); // remove ms
   let df = fns.format(dt, options.dateFormatString); // date formated to the token format
   //console.log("encoded date", df)
-  let curntdate = fns.parse(
-      df,
-      options.dateFormatString,
-      new Date()
-    ); // formatted date parsed back to normal date
+  let curntdate = fns.parse(df, options.dateFormatString, new Date()); // formatted date parsed back to normal date
   /*
   console.log("dt", dt.toLocaleString()); // current date and time
   console.log("dateFormatString", options.dateFormatString); // dateFormatString
@@ -313,7 +328,7 @@ function isTokenValid(auth, token, options) {
   */
 
   // token is valid if the diff between maxtndate and curntdate is less than validityPeriod (in secs) (or validityPeriod*1000 ms)
-  if ( (maxtndate - curntdate) <= (options.validityPeriod * 1000) ) {
+  if (maxtndate - curntdate <= options.validityPeriod * 1000) {
     //console.log("token valid");
     return true;
   } else {
@@ -322,17 +337,10 @@ function isTokenValid(auth, token, options) {
   }
 }
 
-
-
 // ++++ the api listener ++++
 server.listen(options.port, () => {
   console.log(`listening on port ${options.port}`);
 });
-
-
-
-
-
 
 // ++++ validate config.json file ++++
 function validateConfig(config) {
@@ -346,70 +354,111 @@ function validateConfig(config) {
   // check we have some minimum security in the settings
   // dateFormatString must include s to ensure fast token rollover
   if (!config.dateFormatString.includes("s")) {
-    throw {name : "SeedMissingS", message : "dateFormatString must contain s or ss"}; 
+    throw {
+      name: "SeedMissingS",
+      message: "dateFormatString must contain s or ss",
+    };
   }
   // dateFormatString must include m to ensure fast token rollover
   if (!config.dateFormatString.includes("m")) {
-    throw {name : "SeedMissingM", message : "dateFormatString must contain m or mm"}; 
+    throw {
+      name: "SeedMissingM",
+      message: "dateFormatString must contain m or mm",
+    };
   }
   // dateFormatString first symbol must be single symbol so as not to generate a leading 0
   // check if first and second characters are different
-  if (config.dateFormatString.substring(0, 2) != "yy" && config.dateFormatString.substring(0, 1) == config.dateFormatString.substring(1, 2)) {
-    throw {name : "SeedInvalidFirstchar", message : "dateFormatString must start with a single symbol"}; 
+  if (
+    config.dateFormatString.substring(0, 2) != "yy" &&
+    config.dateFormatString.substring(0, 1) ==
+      config.dateFormatString.substring(1, 2)
+  ) {
+    throw {
+      name: "SeedInvalidFirstchar",
+      message: "dateFormatString must start with a single symbol",
+    };
   }
 
   // dateFormatString must be 8 to 12 characters long
-  if (!(config.dateFormatString.length >= 8 && config.pin.toString().length <= 12)) {
-    throw {name : "SeedLenInvalid", message : "dateFormatString must be between 8 and 12 characters long"}; 
+  if (
+    !(config.dateFormatString.length >= 8 && config.pin.toString().length <= 12)
+  ) {
+    throw {
+      name: "SeedLenInvalid",
+      message: "dateFormatString must be between 8 and 12 characters long",
+    };
   }
   // check if dateFormatString is valid by doing a test encode and decode of the date
   // throw an error if not allowed or if any difference > 0 seconds occurs
-  var dt = new Date() // date in utc
+  var dt = new Date(); // date in utc
   //console.log("encoding and decoding using", options.dateFormatString, "(ignoring milliseconds)")
   let df = fns.format(dt, config.dateFormatString); // date formated to the token format
   //console.log("encoded date", df)
   // parse the formatted date back to normal date, this tests the dateFormatString
-  let ddt = fns.parse(
-      df,
-      config.dateFormatString,
-      new Date()
-    ); 
+  let ddt = fns.parse(df, config.dateFormatString, new Date());
   //console.log("decoded date: ",ddt) // the result
-  const datediff = Math.abs(Math.ceil((ddt - dt)/1000)); // diff in seconds, rounded up, always positive
+  const datediff = Math.abs(Math.ceil((ddt - dt) / 1000)); // diff in seconds, rounded up, always positive
   if (datediff == 0) {
     //console.log("dateFormatString OK");
   } else {
-    console.log("encoding and decoding using", options.dateFormatString, "(ignoring milliseconds)")
-    console.log("encoded date :", df)
-    console.log("decoded date :", ddt) // the result
-    console.log("date diff:", datediff) // diff seconds, rounded up
-    throw {name : "SeedNotValid", message : "dateFormatString not suitable: "+ config.dateFormatString}; 
+    console.log(
+      "encoding and decoding using",
+      options.dateFormatString,
+      "(ignoring milliseconds)"
+    );
+    console.log("encoded date :", df);
+    console.log("decoded date :", ddt); // the result
+    console.log("date diff:", datediff); // diff seconds, rounded up
+    throw {
+      name: "SeedNotValid",
+      message: "dateFormatString not suitable: " + config.dateFormatString,
+    };
   }
-
 
   // pin checks
 
   // PIN must be 4 to 6 characters long
-  if (!(config.pin.toString().length >= 4 && config.pin.toString().length <= 6)) {
-    throw {name : "ErrPinLenInvalid", message : "pin must be between 4 and 6 characters long"}; 
+  if (
+    !(config.pin.toString().length >= 4 && config.pin.toString().length <= 6)
+  ) {
+    throw {
+      name: "ErrPinLenInvalid",
+      message: "pin must be between 4 and 6 characters long",
+    };
   }
   // PIN must not start with 0 (otherwise the number checks fail, and the multiplication effect is too small)
-  if ((config.pin.toString().startsWith("0"))) {
-    throw {name : "ErrPinFirstDigitZero", message : "pin must not begin with 0"}; 
+  if (config.pin.toString().startsWith("0")) {
+    throw {
+      name: "ErrPinFirstDigitZero",
+      message: "pin must not begin with 0",
+    };
   }
   // PIN must be numeric and an integer
-  if (isNaN(Number(config.pin)) ) {
-    throw {name : "ErrPinNaN", message : "pin must be a 4 to 6 digit whole number"}; 
+  if (isNaN(Number(config.pin))) {
+    throw {
+      name: "ErrPinNaN",
+      message: "pin must be a 4 to 6 digit whole number",
+    };
   }
   // PIN must not be too simple and must not be disivible by 10
-  if (generateEasyPins().includes(config.pin.toString()) || ((Number(config.pin) % 10) == 0)) {
-    throw {name : "ErrPinTooSimple", message : "pin too simple"}; 
+  if (
+    generateEasyPins().includes(config.pin.toString()) ||
+    Number(config.pin) % 10 == 0
+  ) {
+    throw { name: "ErrPinTooSimple", message: "pin too simple" };
   }
   //console.log("pin OK"); // if we got here, pin is ok
+
+  // email checks, make sure we can split on comma
+  if (config.authorisedRecipients.length > 0) {
+    let emails = config.authorisedRecipients.split(",");
+    console.log("authorised recipients:", emails);
+  }
+
   errPrefix = "";
+
   return false;
 }
-
 
 // ++++ a generator of easy-to-guess pins ++++
 function generateEasyPins(url) {
