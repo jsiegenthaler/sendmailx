@@ -155,7 +155,7 @@ node sendmailx.js -a none -i 1248
 
 2. Copy the following url, and enter the ip address of your raspberry pi (instead of 192.168.0.1) in the url. Note that at this stage we have not configured any authentication.
 ```
-http://192.168.0.1:3100/?subject=Test&body=Hello&mailto=youremail@address.com
+http://192.168.0.1:3100/?subject=Test&body=Hello&to=youremail@address.com
 ```
 
 3. Paste the updated url into your browser and hit Enter
@@ -201,7 +201,7 @@ Note that Calculation_Result is the result from the Calculation step.
 
 Whitespaces must be url encoded to %20.
 
-Set the subject, body and mailto as desired.
+Set the subject, body and to as desired.
 
 #### Step 5: Get contents of URL
 
@@ -293,5 +293,5 @@ The pin code is a 4 to 6 digit numeric code which is used together with the date
 ## Setting the Authorised Recipients List
 sendmailx can be configured to only send emails to email addresses set in the authorisedRecipients option. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
-If authorisedRecipients is empty, then sendmailx will send to any email entered in the mailto parameter of the http GET command.
+If authorisedRecipients is empty, then sendmailx will send to any email entered in the to parameter of the http GET command.
 
