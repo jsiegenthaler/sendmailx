@@ -1,6 +1,6 @@
 {
   "name": "sendmailx",
-  "version": "0.0.2-beta.2",  "description": "A simple API that executes a sendmail command from an http GET request",
+  "version": "0.0.2-beta.7",  "description": "A simple API that executes a sendmail command from an http GET request",
   "main": "sendmailx.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
