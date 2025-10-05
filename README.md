@@ -223,12 +223,21 @@ sendmailx listens on your local network and processes any GET command it receive
 To provide for security on your local network, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 * TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
 * Restricted Email List - sendmailx can be restricted to send emails only to addresses provided when in the sendmail authorisedRecipients option
 
 
 ## Setting a TOTP (Time-limited One Time Passcode)
 The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in sendmail option validityPeriod (seconds).
+=======
+* TOTP - a time limited one-time passcode (token) must be included with every request. If the token is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
+* Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-configured in the authorisedRecipients option
+
+
+## Setting a TOTP (Time-limited One Time Passcode)
+The TOTP token is generated using the current datetime and a secret pin code. The token is valid only for a short period of time, defined in the validityPeriod option (in seconds).
+>>>>>>> Stashed changes
 =======
 * TOTP - a time limited one-time passcode (token) must be included with every request. If the token is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
 * Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-configured in the authorisedRecipients option
