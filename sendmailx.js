@@ -172,80 +172,17 @@ app.use("/", (req, res) => {
       throw { name: "ErrNoMailto", message: "to missing in url" };
     }
 
-    // raise error if the to,cc or bcc is not authorised
+    // raise error if the to, cc or bcc is not authorised
     // first make an array of the authorisedRecipients
     var authorisedRecipients = [];
     if (options.authorisedRecipients.length > 0) {
       authorisedRecipients = options.authorisedRecipients.split(",");
     }
     // test the array emails
-    // the mail to can contain multiple emails, split by comma and loop the array
-    let emails = [];
-    emails = (params.to || "").split(",");
-    // loop each email:
-    for (let i = 0; i < emails.length; i++) {
-      console.log("checking emails[i]:", emails[i])
-      console.log("authorisedRecipients:", authorisedRecipients)
-      if (
-        authorisedRecipients.length > 0 &&
-        authorisedRecipients.indexOf(emails[i]) == -1
-      ) {
-        console.log("mail to not authorised:", emails[i])
-        throw {
-          name: "ErrMailToNotAuthorised",
-          message: "mail to contains a non-authorised address: " + emails[i]
-        };
-      } else {
-         console.log("mail to authorised:", emails[i])
-      }
-    }
-    // the optional mail cc can contain multiple emails, split by comma and loop the array
-    console.log("params.cc",params.cc)
-    emails = []
-    if (params.cc) {
-      emails = (params.cc || "").split(",");
-    }
-    console.log("cc emails[]",emails)
-    // loop each email:
-    for (let i = 0; i < emails.length; i++) {
-      console.log("checking emails[i]:", emails[i])
-      console.log("authorisedRecipients:", authorisedRecipients)
-      if (
-        authorisedRecipients.length > 0 &&
-        authorisedRecipients.indexOf(emails[i]) == -1
-      ) {
-        console.log("mail cc not authorised:", emails[i])
-        throw {
-          name: "ErrMailCcNotAuthorised",
-          message: "mail cc contains a non-authorised address: " + emails[i]
-        };
-      } else {
-         console.log("mail cc authorised:", emails[i])
-      }
-    }
-    // the mail bcc can contain multiple emails, split by comma and loop the array
-    emails = []
-    if (params.bcc) {
-      emails = (params.bcc || "").split(",");
-    }
-    console.log("bcc emails[]",emails)
-    // loop each email:
-    for (let i = 0; i < emails.length; i++) {
-      console.log("checking emails[i]:", emails[i])
-      console.log("authorisedRecipients:", authorisedRecipients)
-      if (
-        authorisedRecipients.length > 0 &&
-        authorisedRecipients.indexOf(emails[i]) == -1
-      ) {
-        console.log("mail bcc not authorised:", emails[i])
-        throw {
-          name: "ErrMailBccNotAuthorised",
-          message: "mail bcc contains a non-authorised address: " + emails[i]
-        };
-      } else {
-         console.log("mail bcc authorised:", emails[i])
-      }
-    }    
+    // the mail parameter (to,cc,bcc) can contain multiple emails, separated by comma
+    isEmailAuthorised("to", params.to, authorisedRecipients)
+    isEmailAuthorised("cc", params.cc, authorisedRecipients)
+    isEmailAuthorised("bcc", params.bcc, authorisedRecipients)
 
 
     // create the sendmail command
@@ -409,6 +346,40 @@ function isTokenValid(auth, token, options) {
     return false;
   }
 }
+
+
+// ++++ check if an email is allowed to be used ++++
+// throws error if not authorised, returns true if authorised
+function isEmailAuthorised(listType, emailList, authorisedRecipients) {
+  //console.log("emailList", emailList);
+  //console.log("authorisedRecipients", authorisedRecipients);
+
+  // the mail bcc can contain multiple emails, split by comma and loop the array
+  let emails = []
+  if (emailList) {
+      emails = (emailList || "").split(",");
+  }
+  //console.log("emails:",emails)
+  // loop each email:
+  for (let i = 0; i < emails.length; i++) {
+    //console.log("checking emails[i]:", emails[i])
+    //console.log("authorisedRecipients:", authorisedRecipients)
+    if (
+      authorisedRecipients.length > 0 &&
+      authorisedRecipients.indexOf(emails[i]) == -1
+    ) {
+      console.log("mail " + listType + " not authorised:", emails[i])
+      throw {
+        name: "ErrMailNotAuthorised",
+        message: "mail " + listType + " contains a non-authorised address: " + emails[i]
+      };
+    } else {
+      console.log("mail " + listType + " authorised:", emails[i])
+    }
+  }
+  return true;
+}
+
 
 // ++++ the api listener ++++
 server.listen(options.port, () => {
