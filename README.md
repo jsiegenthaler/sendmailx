@@ -123,26 +123,29 @@ For more information about pm2, see https://github.com/Unitech/pm2
 
 ## Supported URL parameters
 
-The rul is constructed as follows:
+The url is constructed as follows:
 
 http:192.168.0.100:3100/?subject=Test&body=This%20is%20the%20body&to=recipient@domain.com&cc=carboncopy@domain.com&bcc=blindcarboncopy@domain.com&token=12345678
 
+In the above example, 192.168.0.100 is the ip address of the raspberry pi.
+
 The parameters can be entered in any order.
+
 The parameter keywords (subject,body,to,cc,bcc,token) must all be in lower case.
 
 The following url parameters are supported:
 
 | Parameter | Example | Notes |
 | :-------: | :----: | :----: |
-| to | to=recipient@domain.com | Mandatory, the address of the email recipient. Multiple addresses can be used, separated by comma |
-| cc | cc=carboncopy@domain.com | Optional. A list of carbon-copy (cc) email recipients, separated by comma |
-| bcc | bcc=blindcarboncopy@domain.com | Optional. A list of blind-carbon-copy (cc) email recipients, separated by comma |
-| subject | subject=The email subject | Optional. The email subject. Must be url encoded. |
-| body | The email nody | Optional. The email body. Must be url encoded. |
-| token | The TOTP token | Optional. The numerical authentication token. |
+| to | to=recipient@domain.com | The address of the email recipient. Multiple addresses can be used, separated by comma. Mandatory |
+| cc | cc=carboncopy@domain.com | A list of carbon-copy (cc) email recipients, separated by comma. Optional |
+| bcc | bcc=blindcarboncopy@domain.com | A list of blind-carbon-copy (cc) email recipients, separated by comma. Optional |
+| subject | subject=The email subject | The email subject. Must be url encoded. Optional |
+| body | The email nody | The email body. Must be url encoded. Optional |
+| token | The TOTP token | The numerical authentication token. Optional |
 
 
-### Testing from a PC without using authentication
+## Testing from a PC without using authentication
 
 1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the -a none option (no authentication), example:
 ```
@@ -169,7 +172,7 @@ If you started with default authentication, and no TOTP code was supplied, you w
 
 
 
-### Testing from Apple HomeKit
+## Testing from Apple HomeKit
 Set up an automation in Apple HomeKit with the following steps:
 
 #### Step 1: Date
@@ -191,7 +194,7 @@ Tip: run the automation at this point and confirm that a number is generated. Th
 
 #### Step 4: Text
 * Enter the url in this text field, example:
-http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com&token=Calculation_Result
+http://192.168.0.1:3100?subject=Test&body=Hello&to=youremail@address.com&token=Calculation_Result
 
 Note that Calculation_Result is the result from the Calculation step.
 
@@ -207,7 +210,7 @@ Run the automation. If the sendmailx is running at 192.168.0.1:3100, it will res
 ```
 {
   "success" : true,
-  "cmd" : "cmd: <>"echo -e \"Subject:Test\n\nHello\" | sendmail youremail@address.com"
+  "cmd" : "cmd: <>"echo \"TO:youremail@address.com\nSubject:Test\nHello\" | sendmail -t"
 }
 ```
 
@@ -219,12 +222,12 @@ sendmailx listens on your local network and processes any GET command it receive
 
 To provide for security on your local network, and to prevent abuse of the sendmail function by unwanted persons, two levels of security are provided:
 
-* TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns 401 Unauthorised
-* Restricted Email List - sendmailx can be restricted to send emails only to addresses pre-saved in the authorisedRecipients section of the config.json
+* TOTP - a time limited one-time passcode must be included with every request. If the TOTP is incorrect, the http GET request is not processed, no email is sent, and the sendmailx returns Unauthorised
+* Restricted Email List - sendmailx can be restricted to send emails only to addresses provided when in the sendmail authorisedRecipients option
 
 
 ## Setting a TOTP (Time-limited One Time Passcode)
-The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in validityPeriod (seconds) in the config.json.
+The TOTP is generated using the current datetime and a secret PIN code. the TOTP is valid only for a short period of time, defined in sendmail option validityPeriod (seconds).
 
 ### dateFormatString
 The dateFormatString is used to format the current date and time into a multi-digit number, not easily recognizable as date and time. This number is then used in the TOTP code generation.
@@ -268,8 +271,8 @@ The PIN code is a 4 to 6 digit numeric code which is used together with the date
 * PIN codes that are too simple will be rejected by sendmailx.
 * Use a PIN code that does not start with 0, and contains 4 to 6 different digits.
 
-## Setting the Authorised Email List
-sendmailx can be configured to only send emails to email addresses set in the authorisedEmails option. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
+## Setting the Authorised Recipients List
+sendmailx can be configured to only send emails to email addresses set in the authorisedRecipients option. Restricting email addresses helps ensure that sendmailx does not get abused by anyone.
 
-If authorisedEmails is empty, then sendmailx will send to any email entered in the mailto parameter of  the http GET command.
+If authorisedRecipients is empty, then sendmailx will send to any email entered in the mailto parameter of the http GET command.
 
