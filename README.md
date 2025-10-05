@@ -148,15 +148,15 @@ The following url parameters are supported:
 
 ## Testing from a PC without using authentication
 
-1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the -a none option (no authentication), example:
+1. Ensure sendmailx is installed on your raspberry pi, and start it on the pi with the `-a none` option (no authentication), and any pin code, example:
 ```
-sendmailx.js -a none
+node sendmailx.js -a none -i 1248
 ```
-
 
 2. Copy the following url, and enter the ip address of your raspberry pi (instead of 192.168.0.1) in the url. Note that at this stage we have not configured any authentication.
-
-http://192.168.0.1:3100?subject=Test&body=Hello&mailto=youremail@address.com
+```
+http://192.168.0.1:3100/?subject=Test&body=Hello&mailto=youremail@address.com
+```
 
 3. Paste the updated url into your browser and hit Enter
 
