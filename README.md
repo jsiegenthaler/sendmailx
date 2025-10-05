@@ -126,7 +126,7 @@ For more information about pm2, see https://github.com/Unitech/pm2
 
 The url is constructed as follows:
 ```
-http:192.168.0.100:3100/?subject=Test&body=This%20is%20the%20body&to=recipient@domain.com&cc=carboncopy@domain.com&bcc=blindcarboncopy@domain.com&token=12345678
+http://192.168.0.100:3100/?subject=Test&body=This%20is%20the%20body&to=recipient@domain.com&cc=carboncopy@domain.com&bcc=blindcarboncopy@domain.com&token=12345678
 ```
 In the above example, 192.168.0.100 is the ip address of the raspberry pi.
 
